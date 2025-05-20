@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: iotw
+  security:
+    jwt:
+      key: abcdefghijk
+      expire: 7
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/iotw
