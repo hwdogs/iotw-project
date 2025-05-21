@@ -85,10 +85,10 @@ public class SecurityConfiguration {
         Account account = service.findAccountByNameOrEmail(user.getUsername());
         String token = utils.createJwt(user, account.getId(), account.getUsername());
 
-        AuthorizeVO vo = new AuthorizeVO();
-        BeanUtils.copyProperties(account, vo);
-        vo.setExpires(utils.expireTime());
-        vo.setToken(token);
+        AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v -> {
+            v.setExpires(utils.expireTime());
+            v.setToken(token);
+        });
 
         response.getWriter().write(RestBean.success(vo).asJsonString());
     }
@@ -109,10 +109,10 @@ public class SecurityConfiguration {
 
         PrintWriter writer = response.getWriter();
         String authorization = request.getHeader("Authorization");
-        if(utils.invalidJwt(authorization)) {
+        if (utils.invalidJwt(authorization)) {
             writer.write(RestBean.success().asJsonString());
-        }else {
-            writer.write(RestBean.failure(400,"退出登录失败").asJsonString());
+        } else {
+            writer.write(RestBean.failure(400, "退出登录失败").asJsonString());
         }
     }
 
