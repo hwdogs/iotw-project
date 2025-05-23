@@ -40,17 +40,27 @@ function storeAccessToken(token, remember, expire) {
     }
 }
 
-function internalPost(url, data, header, success, failure, error = defaultFailure) {
-    axios.post(url, data, {headers: header}).then(({data}) => {
-        if (data.code === 200) {
-            success(data.data)
-        }else {
-            failure(data.message, data.code, data.message)
-        }
-    }).catch(err => error(err))
+function internalPost(url, data, header, success, failure, error = defaultError) {
+    axios.post(url, data, {headers: header})
+        .then(({data}) => {
+            if (data.code === 200) {
+                success(data.data)
+            }else {
+                failure(data.msg || data.message, data.code, url)
+            }
+        }).catch(err => {
+            // 处理网络级错误（如401状态码）
+            if (err.response) {
+                // 从错误响应中提取服务器返回的信息
+                const res = err.response.data
+                failure(res.message, res.code, url)
+            } else {
+                error(err)
+            }
+        })
 }
 
-function internalGet(url, header, success, failure, error = defaultFailure) {
+function internalGet(url, header, success, failure, error = defaultError) {
     axios.get(url, {headers: header}).then(({data}) => {
         if (data.code === 200) {
             success(data.data)
@@ -60,7 +70,7 @@ function internalGet(url, header, success, failure, error = defaultFailure) {
     }).catch(err => error(err))
 }
 
-function login(username, password, remember, success, failure = defaultError) {
+function login(username, password, remember, success, failure = defaultFailure) {
     internalPost('/api/auth/login', {
         username : username,
         password: password,
