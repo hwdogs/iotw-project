@@ -1,7 +1,13 @@
 spring:
+  web:
+    cors:
+      origin: 'http://localhost:5173'
+      methods: 'GET, POST, PUT, DELETE, OPTIONS'
   application:
     name: iotw
   security:
+    filter:
+      order: -100
     jwt:
       key: abcdefghijk
       expire: 7
