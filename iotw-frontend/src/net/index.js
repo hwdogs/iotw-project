@@ -30,6 +30,11 @@ function deleteAccessToken() {
     sessionStorage.removeItem(authItemName)
 }
 
+function accessHeader() {
+    const token = takeAccessToken();
+    return token ? {Authorization: `Bearer ${takeAccessToken()}`} : {}
+}
+
 function storeAccessToken(token, remember, expire) {
     const authObj = {token: token, expire: expire}
     const str = JSON.stringify(authObj)
@@ -65,9 +70,17 @@ function internalGet(url, header, success, failure, error = defaultError) {
         if (data.code === 200) {
             success(data.data)
         }else {
-            failure(data.message)
+            failure(data.msg || data.message)
         }
     }).catch(err => error(err))
+}
+
+function get(url, success, failure = defaultFailure) {
+    internalGet(url, accessHeader(), success, failure)
+}
+
+function post(url, data, success, failure = defaultError) {
+    internalPost(url, data, accessHeader(), success, failure)
 }
 
 function login(username, password, remember, success, failure = defaultFailure) {
@@ -83,4 +96,16 @@ function login(username, password, remember, success, failure = defaultFailure) 
     }, failure)
 }
 
-export {login}
+function logout(success, failure = defaultFailure) {
+    get('/api/auth/logout', () => {
+        deleteAccessToken()
+        ElMessage.success('退出登录成功，欢迎您再次使用')
+        success()
+    }, failure)
+}
+
+function unauthorize() {
+    return !takeAccessToken()
+}
+
+export { login, logout, get, post, unauthorize }
