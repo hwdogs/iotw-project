@@ -11,4 +11,6 @@ public class Const {
     public static final String VERIFY_EMAIL_DATA = "verify:email:data";
 
     public static final int ORDER_CORS = -102;
+
+    public static final int RULE_USER = 1;
 }

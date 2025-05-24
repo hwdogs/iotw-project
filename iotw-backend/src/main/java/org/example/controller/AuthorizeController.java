@@ -37,4 +37,15 @@ public class AuthorizeController {
         return message == null ? RestBean.success() : RestBean.failure(400, message);
 
     }
+
+    /**
+     * 进行用户注册操作，需要先请求邮件验证码
+     *
+     * @param vo 注册信息
+     * @return 是否注册成功
+     */
+    @PostMapping("/register")
+    public RestBean<Void> register(@RequestBody EmailRegisterVO vo) {
+        return this.messageHandle(() -> service.registerEmailAccount(vo));
+    }
 }
