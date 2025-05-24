@@ -14,7 +14,7 @@ const defaultError = (err) => {
 }
 
 function takeAccessToken() {
-    const str = localStorage.getItem(authItemName) || localStorage.getItem(defaultFailure);
+    const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName);
     if (!str) return null
     const authObj = JSON.parse(str)
     if (authObj.expire <= Date.now()) {
@@ -22,7 +22,7 @@ function takeAccessToken() {
         ElMessage.success('登录状态已过期, 请重新登录')
         return null
     }
-    return authObj
+    return authObj.token
 }
 
 function deleteAccessToken() {
