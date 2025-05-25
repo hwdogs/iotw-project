@@ -53,7 +53,6 @@ public class AuthorizeController {
      */
     @PostMapping("/register")
     public RestBean<Void> register(@RequestBody EmailRegisterVO vo) {
-        return this.messageHandle(() -> service.registerEmailAccount(vo));
         return this.messageHandle(vo, service::registerEmailAccount);
     }
 
@@ -78,6 +77,9 @@ public class AuthorizeController {
     public RestBean<Void> resetPassword(@RequestBody EmailRestVO vo) {
         return this.messageHandle(vo, service::resetEmailAccountPassword);
     }
+
+    private <T> RestBean<Void> messageHandle(T vo, Function<T, String> function) {
+        return messageHandle(() -> function.apply(vo));
     }
 
     /**
