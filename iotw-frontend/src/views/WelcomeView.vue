@@ -6,7 +6,7 @@
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex">
     <div style="flex: 1;background-color: black">
       <el-image style="width: 100%;height: 100%" fit="cover"
-          src="https://pic.rmb.bdstatic.com/bjh/240418/news/7e1008037a60291a9611f91878855ef67469.jpeg"/>
+                src="https://pic.rmb.bdstatic.com/bjh/240418/news/7e1008037a60291a9611f91878855ef67469.jpeg"/>
     </div>
     <div class="welcome-title">
       <div style="font-size: 30px;font-weight: bold">欢迎来到物联网智能仓库管理平台</div>
@@ -31,6 +31,7 @@
   color: white;
   text-shadow: 0 0 10px black;
 }
+
 .right-card {
   width: 400px;
   z-index: 1;

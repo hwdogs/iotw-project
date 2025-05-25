@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { login } from '@/net';
-import { User, Lock } from '@element-plus/icons-vue'
+import {login} from '@/net';
+import {User, Lock} from '@element-plus/icons-vue'
 import {reactive, ref} from "vue";
 import router from '@/router';
 
@@ -13,14 +13,14 @@ const form = reactive({
 })
 const rule = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
+    {required: true, message: '请输入用户名', trigger: 'blur'}
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
+    {required: true, message: '请输入密码', trigger: 'blur'}
   ]
 }
 
-function  userLogin() {
+function userLogin() {
   formRef.value.validate((valid) => {
     if (valid) {
       login(form.username, form.password, form.remember,

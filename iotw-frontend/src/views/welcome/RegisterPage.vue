@@ -6,7 +6,7 @@ import router from "@/router";
 import {get} from "@/net";
 import {ElMessage} from "element-plus";
 
-const  form = reactive({
+const form = reactive({
   username: '',
   password: '',
   passwordConfirm: '',
