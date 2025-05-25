@@ -3,7 +3,7 @@
 import {computed, reactive, ref} from "vue";
 import {Lock, User, Message, Edit} from "@element-plus/icons-vue";
 import router from "@/router";
-import {get} from "@/net";
+import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
 
 const form = reactive({
@@ -57,6 +57,7 @@ const rule = {
 }
 
 const coldTime = ref(0)
+const formRef = ref()
 
 function askCode() {
   if (isEmailValid) {
@@ -64,7 +65,7 @@ function askCode() {
     coldTime.value = 60
 
     get(`/api/auth/ask-code?email=${form.email}&type=register`, () => {
-      ElMessage.success(`验证码已发送到邮箱${form.email}, 请注意查收`)
+      ElMessage.success(`验证码已发送到邮箱: ${form.email}, 请注意查收`)
 
       // 先清除可能存在的旧计时器
       if (timer) clearInterval(timer);
@@ -92,6 +93,20 @@ function askCode() {
 
 const isEmailValid = computed(() => /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(form.email))
 
+function register() {
+  formRef.value.validate((valid: boolean) => {
+    if (valid) {
+      post(`/api/auth/register`, {...form}, () => {
+        ElMessage.success('注册成功，欢迎加入IOTW')
+        router.push('/')
+      }, (message) => {
+        ElMessage.warning(message)
+      })
+    } else {
+      ElMessage.warning('请完整填写注册表单内容')
+    }
+  })
+}
 
 </script>
 
@@ -102,7 +117,7 @@ const isEmailValid = computed(() => /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9
       <div style="font-size: 14px;color: grey">欢迎注册我们的学习平台，请在下方填写相关信息</div>
     </div>
     <div style="margin-top: 50px">
-      <el-form :model="form" :rules="rule">
+      <el-form :model="form" :rules="rule" ref="formRef">
         <el-form-item prop="username">
           <el-input v-model="form.username" maxlength="15" type="text" placeholder="用户名">
             <template #prefix>
@@ -160,7 +175,7 @@ const isEmailValid = computed(() => /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9
         </el-form-item>
       </el-form>
       <div style="margin-top: 80px">
-        <el-button style="width: 270px" type="primary" plain>立即注册</el-button>
+        <el-button @click="register" style="width: 270px" type="primary" plain>立即注册</el-button>
       </div>
       <div style="margin-top: 20px">
         <span style="font-size: 14px;line-height: 15px;color: grey">已有账号？</span>
