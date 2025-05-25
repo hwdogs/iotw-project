@@ -58,25 +58,23 @@ const rule = {
 
 const coldTime = ref(0)
 const formRef = ref()
+const timer = ref(null);
 
 function askCode() {
   if (isEmailValid) {
-    let timer = null;
     coldTime.value = 60
+    // 先清除可能存在的旧计时器
+    if (timer.value) clearInterval(timer.value);
 
     get(`/api/auth/ask-code?email=${form.email}&type=register`, () => {
       ElMessage.success(`验证码已发送到邮箱: ${form.email}, 请注意查收`)
 
-      // 先清除可能存在的旧计时器
-      if (timer) clearInterval(timer);
-
       // 启动新计时器并保存ID
-      timer = setInterval(() => {
+      timer.value = setInterval(() => {
         coldTime.value--;
-
-        // 当倒计时结束时清除计时器[2](@ref)
+        // 当倒计时结束时清除计时器
         if (coldTime.value <= 0) {
-          clearInterval(timer);
+          clearInterval(timer.value);
           coldTime.value = 0; // 可选：重置显示值
         }
       }, 1000);
@@ -84,14 +82,14 @@ function askCode() {
     }, (message) => {
       ElMessage.warning(message)
       coldTime.value = 0
-      clearInterval(timer);
+      clearInterval(timer.value);
     })
   } else {
     ElMessage.warning('请输入正确的电子邮件!')
   }
 }
 
-const isEmailValid = computed(() => /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(form.email))
+const isEmailValid = computed(() => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(form.email))
 
 function register() {
   formRef.value.validate((valid: boolean) => {
