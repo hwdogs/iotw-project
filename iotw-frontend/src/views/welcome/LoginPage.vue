@@ -41,14 +41,18 @@ function userLogin() {
         <el-form-item prop="username">
           <el-input v-model="form.username" maxlength="10" type="text" placeholder="用户名/邮箱">
             <template #prefix>
-              <el-icon><User/></el-icon>
+              <el-icon>
+                <User/>
+              </el-icon>
             </template>
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password"  maxlength="10" type="password" placeholder="密码">
+          <el-input v-model="form.password" maxlength="10" type="password" placeholder="密码">
             <template #prefix>
-              <el-icon><Lock /></el-icon>
+              <el-icon>
+                <Lock/>
+              </el-icon>
             </template>
           </el-input>
         </el-form-item>
