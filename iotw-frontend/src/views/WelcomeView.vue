@@ -14,7 +14,11 @@
       <div style="margin-top: 5px">您在这里可以预判市场需求趋势，利用数据驱动决策提升供应链响应速度与运营效益</div>
     </div>
     <div class="right-card">
-      <router-view/>
+      <router-view v-slot="{ Component }">
+        <transition name="el-fade-in-linear" mode="out-in">
+          <component :is="Component"/>
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>
