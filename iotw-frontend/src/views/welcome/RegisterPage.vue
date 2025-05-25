@@ -153,7 +153,7 @@ function register() {
           </el-input>
         </el-form-item>
         <el-form-item prop="code">
-          <el-row gutter="10" style="width: 100%">
+          <el-row :gutter="10" style="width: 100%">
             <el-col :span="17">
               <el-input v-model="form.code" maxlength="6" type="text" placeholder="请输入验证码">
                 <template #prefix>
