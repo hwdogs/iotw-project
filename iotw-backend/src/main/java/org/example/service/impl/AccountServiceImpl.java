@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.dto.Account;
-import org.example.entity.vo.EmailRegisterVO;
+import org.example.entity.vo.request.ConfirmResetVO;
+import org.example.entity.vo.request.EmailRegisterVO;
+import org.example.entity.vo.request.EmailRestVO;
 import org.example.mapper.AccountMapper;
 import org.example.service.AccountService;
 import org.example.utils.Const;
@@ -19,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +69,44 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .password(account.getPassword())
                 .roles(String.valueOf(account.getRole())) //数据库是Integer SpringSecurity是String
                 .build();
+    }
+
+    /**
+     * 邮件验证码重置密码操作，需要检查验证码是否正确
+     * @param vo 重置基本信息
+     * @return 操作结果，null表示正常，否则为错误原因
+     */
+    @Override
+    public String resetEmailAccountPassword(EmailRestVO vo) {
+        String email = vo.getEmail();
+        String verify = this.resetConfirm(new ConfirmResetVO(vo.getEmail(), vo.getCode()));
+        if (verify != null) {
+            return verify;
+        }
+        String password = passwordEncoder.encode(vo.getPassword());
+        boolean update = this.update().eq("email", email).set("password", password).update();
+        if(update) {
+            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
+        }
+        return null;
+    }
+
+    /**
+     * 重置密码确认操作，验证验证码是否正确
+     * @param vo 验证基本信息
+     * @return 操作结果，null表示正常，否则为错误原因
+     */
+    @Override
+    public String resetConfirm(ConfirmResetVO vo) {
+        String email = vo.getEmail();
+        String code = stringRedisTemplate.opsForValue().get(Const.VERIFY_EMAIL_DATA + email);
+        if (code == null) {
+            return "请先获取验证码";
+        }
+        if(!code.equals(vo.getCode())) {
+            return "验证码错误，请重新输入";
+        }
+        return null;
     }
 
     public Account findAccountByNameOrEmail(String text) {

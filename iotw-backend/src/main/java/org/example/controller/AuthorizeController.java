@@ -5,11 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import org.example.entity.RestBean;
-import org.example.entity.vo.EmailRegisterVO;
+import org.example.entity.vo.request.ConfirmResetVO;
+import org.example.entity.vo.request.EmailRegisterVO;
+import org.example.entity.vo.request.EmailRestVO;
 import org.example.service.AccountService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -51,6 +54,30 @@ public class AuthorizeController {
     @PostMapping("/register")
     public RestBean<Void> register(@RequestBody EmailRegisterVO vo) {
         return this.messageHandle(() -> service.registerEmailAccount(vo));
+        return this.messageHandle(vo, service::registerEmailAccount);
+    }
+
+    /**
+     * 执行密码重置确认，检查验证码是否正确
+     *
+     * @param vo 密码重置信息
+     * @return 是否操作成功
+     */
+    @PostMapping("/reset-confirm")
+    public RestBean<Void> resetConfirm(@RequestBody ConfirmResetVO vo) {
+        return this.messageHandle(vo, service::resetConfirm);
+    }
+
+    /**
+     * 执行密码重置操作
+     *
+     * @param vo 密码重置信息
+     * @return 是否操作成功
+     */
+    @PostMapping("/reset-password")
+    public RestBean<Void> resetPassword(@RequestBody EmailRestVO vo) {
+        return this.messageHandle(vo, service::resetEmailAccountPassword);
+    }
     }
 
     /**
