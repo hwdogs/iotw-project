@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.entity.RestBean;
 import org.example.utils.Const;
+import org.example.utils.FlowUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -29,16 +31,26 @@ public class FlowLimitFilter extends HttpFilter {
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
+    //指定时间内最大请求次数限制
+    @Value("${spring.web.flow.limit}")
+    int limit;
+    //计数时间周期
+    @Value("${spring.web.flow.period}")
+    int period;
+    //超出请求限制封禁时间
+    @Value("${spring.web.flow.block}")
+    int block;
+    @Resource
+    FlowUtils flowUtils;
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String addr = request.getRemoteAddr();
-        if (this.tryCount(addr)) {
-            chain.doFilter(request, response);
-        } else {
+        if ("OPTIONS".equals(request.getMethod()) && !this.tryCount(addr)) {
             this.writeBlockMessage(response);
+        } else {
+            chain.doFilter(request, response);
         }
-        super.doFilter(request, response, chain);
     }
 
     /**
@@ -64,27 +76,10 @@ public class FlowLimitFilter extends HttpFilter {
             if (stringRedisTemplate.hasKey(Const.FLOW_LIMIT_BLOCK + ip)) {
                 return false;
             }
-            return this.limitPeriodCheck(ip);
+            String counterKey = Const.FLOW_LIMIT_COUNTER + ip;
+            String blockKey = Const.FLOW_LIMIT_BLOCK + ip;
+            return flowUtils.limitPeriodCheck(counterKey, blockKey, block, limit, period);
         }
 
-    }
-
-    /**
-     * 针对于在时间段内多次请求限制，超出频率则封禁一段时间
-     *
-     * @param ip 请求IP地址
-     * @return 是否通过限流检查
-     */
-    private boolean limitPeriodCheck(String ip) {
-        if (stringRedisTemplate.hasKey(Const.FLOW_LIMIT_COUNTER + ip)) {
-            Long increment = Optional.ofNullable(stringRedisTemplate.opsForValue().increment(Const.FLOW_LIMIT_COUNTER + ip)).orElse(0L);
-            if (increment > 10) {
-                stringRedisTemplate.opsForValue().set(Const.FLOW_LIMIT_BLOCK + ip, "", 30, TimeUnit.SECONDS);
-                return false;
-            }
-        } else {
-            stringRedisTemplate.opsForValue().set(Const.FLOW_LIMIT_COUNTER + ip, "1", 3, TimeUnit.SECONDS);
-        }
-        return true;
     }
 }
