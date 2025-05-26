@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, computed} from 'vue';
 import {useRouter} from 'vue-router';
+import {useAllDataStore} from '@/stores'
 import {
   House,
   VideoPlay,
@@ -62,14 +63,20 @@ const hasChildren = computed(() => list.value.filter(item => item.children))
 const clickMenu = (item) => {
   router.push(item.path)
 }
+
+const store = useAllDataStore();
+const isCollapse = computed(() => store.state.isCollapse)
+// width
+const width = computed(() => store.state.isCollapse ? '64px' : '192px')
 </script>
 
 <template>
-  <el-aside width="180px" class="border-right">
+  <el-aside :width="width" class="border-right">
     <el-menu
-    :collapse="false"
+        :collapse="isCollapse"
     >
-      <h3>IOTW</h3>
+      <h3 v-show="!isCollapse">IOTW</h3>
+      <h3 v-show="isCollapse">W</h3>
       <el-menu-item
           v-for="item in noChildren"
           :index="item.path"
@@ -77,7 +84,7 @@ const clickMenu = (item) => {
           @click="clickMenu(item)"
       >
         <el-icon>
-          <component :is="item.icon" />
+          <component :is="item.icon"/>
         </el-icon>
         <span>{{ item.label }}</span>
       </el-menu-item>
@@ -88,7 +95,7 @@ const clickMenu = (item) => {
       >
         <template #title>
           <el-icon>
-            <component :is="item.icon" />
+            <component :is="item.icon"/>
           </el-icon>
           <span>{{ item.label }}</span>
         </template>
@@ -100,7 +107,7 @@ const clickMenu = (item) => {
               @click="clickMenu(subItem)"
           >
             <el-icon>
-              <component :is="subItem.icon" />
+              <component :is="subItem.icon"/>
             </el-icon>
             <span>{{ subItem.label }}</span>
           </el-menu-item>

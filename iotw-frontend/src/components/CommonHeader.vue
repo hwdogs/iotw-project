@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import {Menu} from '@element-plus/icons-vue'
+import {useAllDataStore} from '@/stores'
 
 const getImageUrl = (user) => {
   return new URL(`../assets/images/${user}.jpg`, import.meta.url).href;
+}
+
+const store = useAllDataStore();
+const handleCollapse = () => {
+  store.state.isCollapse = !store.state.isCollapse
 }
 </script>
 
 <template>
   <div class="header">
     <div class="l-content">
-      <el-button size="default" :icon="Menu">
+      <el-button size="default" :icon="Menu" @click="handleCollapse">
       </el-button>
       <el-breadcrumb separator="/" class="bread">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
