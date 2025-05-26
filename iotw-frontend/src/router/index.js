@@ -29,6 +29,33 @@ const router = createRouter({
             path: '/index',
             name: 'index',
             component: () => import('@/views/IndexView.vue'),
+            children: [
+                {
+                    path: 'home',
+                    name: 'home',
+                    component: () => import('@/views/HomeView.vue')
+                },
+                {
+                    path: 'mall',
+                    name: 'mall',
+                    component: () => import('@/views/MallView.vue')
+                },
+                {
+                    path: 'user',
+                    name: 'user',
+                    component: () => import('@/views/UserView.vue')
+                },
+                {
+                    path: 'page1',
+                    name: 'page1',
+                    component: () => import('@/views/Page1View.vue')
+                },
+                {
+                    path: 'page2',
+                    name: 'page2',
+                    component: () => import('@/views/Page2View.vue')
+                }
+            ]
         }
     ]
 })
