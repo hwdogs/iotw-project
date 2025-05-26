@@ -30,12 +30,6 @@ const tableLabel = ref({
 </script>
 
 <template>
-  <div class="home-container">
-    <h2>首页</h2>
-    <div class="content">
-      <p>欢迎来到IOTW系统</p>
-    </div>
-  </div>
   <el-row class="home" :gutter="20">
     <el-col :span="8" style="margin-top: 20px">
       <el-card shadow="hover">
