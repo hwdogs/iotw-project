@@ -71,12 +71,13 @@ const width = computed(() => store.state.isCollapse ? '64px' : '192px')
 </script>
 
 <template>
-  <el-aside :width="width" class="border-right">
+  <el-aside :width="width">
     <el-menu
         :collapse="isCollapse"
+        :collapse-transition="false"
     >
-      <h3 v-show="!isCollapse">IOTW</h3>
-      <h3 v-show="isCollapse">W</h3>
+      <h3 v-show="!isCollapse" key="full">IOTW</h3>
+      <h3 v-show="isCollapse" key="collapse">W</h3>
       <el-menu-item
           v-for="item in noChildren"
           :index="item.path"
