@@ -28,7 +28,7 @@ const router = createRouter({
         }, {
             path: '/index',
             name: 'index',
-            redirect: '/home',
+            redirect: {name: 'home'},
             component: () => import('@/views/IndexView.vue'),
             children: [
                 {
