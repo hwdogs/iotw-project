@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class FlowLimitFilter extends HttpFilter {
 
     @Resource
-    StringRedisTemplate redisTemplate;
+    StringRedisTemplate stringRedisTemplate;
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -61,7 +61,7 @@ public class FlowLimitFilter extends HttpFilter {
      */
     private boolean tryCount(String ip) {
         synchronized (ip.intern()) {
-            if (redisTemplate.hasKey(Const.FLOW_LIMIT_BLOCK + ip)) {
+            if (stringRedisTemplate.hasKey(Const.FLOW_LIMIT_BLOCK + ip)) {
                 return false;
             }
             return this.limitPeriodCheck(ip);
@@ -76,14 +76,14 @@ public class FlowLimitFilter extends HttpFilter {
      * @return 是否通过限流检查
      */
     private boolean limitPeriodCheck(String ip) {
-        if (redisTemplate.hasKey(Const.FLOW_LIMIT_COUNTER + ip)) {
-            Long increment = Optional.ofNullable(redisTemplate.opsForValue().increment(Const.FLOW_LIMIT_COUNTER + ip)).orElse(0L);
+        if (stringRedisTemplate.hasKey(Const.FLOW_LIMIT_COUNTER + ip)) {
+            Long increment = Optional.ofNullable(stringRedisTemplate.opsForValue().increment(Const.FLOW_LIMIT_COUNTER + ip)).orElse(0L);
             if (increment > 10) {
-                redisTemplate.opsForValue().set(Const.FLOW_LIMIT_BLOCK + ip, "", 30, TimeUnit.SECONDS);
+                stringRedisTemplate.opsForValue().set(Const.FLOW_LIMIT_BLOCK + ip, "", 30, TimeUnit.SECONDS);
                 return false;
             }
         } else {
-            redisTemplate.opsForValue().set(Const.FLOW_LIMIT_COUNTER + ip, "1", 3, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(Const.FLOW_LIMIT_COUNTER + ip, "1", 3, TimeUnit.SECONDS);
         }
         return true;
     }
