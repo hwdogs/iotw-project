@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import {logout} from "@/net"
-import router from "@/router"
 import CommonAside from "@/components/CommonAside.vue";
 import CommonHeader from "@/components/CommonHeader.vue";
-
-function userLogout() {
-  logout(() => router.push('/'))
-}
 
 </script>
 
@@ -22,9 +16,6 @@ function userLogout() {
         </el-header>
         <el-main class="right-main">
           <router-view></router-view>
-          <div class="logout-btn">
-            <el-button @click="userLogout">退出登录</el-button>
-          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -50,11 +41,5 @@ function userLogout() {
 .right-main {
   padding: 20px;
   position: relative;
-}
-
-.logout-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
 }
 </style>

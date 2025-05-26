@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import {Menu} from '@element-plus/icons-vue'
 import {useAllDataStore} from '@/stores'
+import {logout} from '@/net'
+import router from '@/router'
+
+function userLogout() {
+  logout(() => router.push('/'))
+}
 
 const getImageUrl = (user) => {
   return new URL(`../assets/images/${user}.jpg`, import.meta.url).href;
@@ -32,7 +38,7 @@ const handleCollapse = () => {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>个人中心</el-dropdown-item>
-            <el-dropdown-item>退出登录</el-dropdown-item>
+            <el-dropdown-item @click="userLogout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
