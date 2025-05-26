@@ -28,6 +28,7 @@ const router = createRouter({
         }, {
             path: '/index',
             name: 'index',
+            redirect: '/home',
             component: () => import('@/views/IndexView.vue'),
             children: [
                 {
