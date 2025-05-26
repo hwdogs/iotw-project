@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from "@/router/index.js";
 import axios from "axios";
 import {createPinia} from "pinia";
+import '@/api/mock.js';
 
 import 'element-plus/theme-chalk/dark/css-vars.css'
 

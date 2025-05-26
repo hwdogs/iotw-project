@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import {ref} from 'vue'
+import {ref, onMounted} from 'vue'
+import {get} from "@/net";
+import {ElMessage} from "element-plus";
+
 
 const getImageUrl = (user) => {
   return new URL(`../assets/images/${user}.jpg`, import.meta.url).href;
@@ -7,7 +10,7 @@ const getImageUrl = (user) => {
 
 const tableData = ref([
   {
-    name: "手表",
+    name: "Garmin Forerrunner255",
     todayBuy: 100,
     monthlyBuy: 200,
     totalBuy: 300,
@@ -27,6 +30,19 @@ const tableLabel = ref({
   totalBuy: "总购买",
 })
 
+const getTableData = () => {
+  get('/api/home/ ', (responseData) => {
+    if (responseData?.data?.tableData) {
+      tableData.value = responseData.data.tableData
+    }
+  }, (message) => {
+    ElMessage.error(message);
+  })
+}
+
+// onMounted(() => {
+//   getTableData()
+// })
 </script>
 
 <template>
@@ -46,6 +62,15 @@ const tableLabel = ref({
         </div>
       </el-card>
 
+      <el-card shadow="hover" class="user-table">
+        <el-table :data="tableData">
+          <el-table-column
+              v-for="(val,key) in tableLabel"
+              :key="key"
+              :prop="String(key)"
+              :label="val"
+          >
+          </el-table-column>
 
         </el-table>
       </el-card>
@@ -99,5 +124,9 @@ const tableLabel = ref({
       }
     }
   }
+}
+
+.user-table {
+  margin-top: 20px;
 }
 </style> 
