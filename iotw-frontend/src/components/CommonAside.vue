@@ -1,18 +1,29 @@
 <script setup lang="ts">
-import {ref, computed} from 'vue';
+import {ref, computed, Component} from 'vue';
 import {useRouter} from 'vue-router';
 import {useAllDataStore} from '@/stores'
 import {
   House,
-  VideoPlay,
+  Box,
   User,
-  Location,
+  More,
   Setting
 } from '@element-plus/icons-vue'
 
+
+// 类型定义
+interface MenuItem {
+  path: string;
+  name: string;
+  label: string;
+  icon: Component;
+  url?: string;
+  children?: MenuItem[];
+}
+
 const router = useRouter();
 
-const list = ref([
+const list = ref<MenuItem[]>([
   {
     path: '/index/home',
     name: 'home',
@@ -24,7 +35,7 @@ const list = ref([
     path: '/index/mall',
     name: 'mall',
     label: '商品管理',
-    icon: VideoPlay,
+    icon: Box,
     url: 'Mall',
   },
   {
@@ -38,7 +49,7 @@ const list = ref([
     path: '/index/other',
     name: 'other',
     label: '其他',
-    icon: Location,
+    icon: More,
     children: [
       {
         path: '/index/page1',
@@ -57,14 +68,19 @@ const list = ref([
     ]
   }
 ])
-const noChildren = computed(() => list.value.filter(item => !item.children))
-const hasChildren = computed(() => list.value.filter(item => item.children))
 
-const clickMenu = (item) => {
+const noChildren = computed(() =>
+    list.value.filter(item => !item.children))
+
+const hasChildren = computed(() =>
+    list.value.filter(item => item.children))
+
+const clickMenu = (item: MenuItem) => {
   router.push(item.path)
 }
 
 const store = useAllDataStore();
+
 const isCollapse = computed(() => store.state.isCollapse)
 // width
 const width = computed(() => store.state.isCollapse ? '64px' : '192px')
