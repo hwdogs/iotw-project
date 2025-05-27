@@ -30,7 +30,7 @@ const list = ref([
   {
     path: '/index/user',
     name: 'user',
-    label: '用户管理',
+    label: '账号管理',
     icon: User,
     url: 'User',
   },
