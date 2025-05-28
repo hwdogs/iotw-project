@@ -17,4 +17,9 @@ public class Const {
     public static final int ORDER_LIMIT = -101;
 
     public static final int RULE_USER = 1;
+
+    public static final int IS_NOT_DELETED = 0;
+    public static final int IS_DELETED = 1;
+    public static final int SEX_MAN = 1;
+    public static final int SEX_WOMAN = 0;
 }
