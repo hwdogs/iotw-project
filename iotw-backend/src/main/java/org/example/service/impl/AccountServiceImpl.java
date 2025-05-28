@@ -187,6 +187,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 null,
                 null,
                 null,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
                 Const.IS_NOT_DELETED
         );
         if (this.save(account)) {

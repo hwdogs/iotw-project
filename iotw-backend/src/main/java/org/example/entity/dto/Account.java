@@ -30,5 +30,7 @@ public class Account implements BaseData {
     LocalDate birth;
     String address;
     Integer sex;
+    LocalDateTime lastLoginTime;
+    LocalDateTime updateTime;
     Integer deleted;
 }
