@@ -3,9 +3,14 @@ import {Menu} from '@element-plus/icons-vue'
 import {useAllDataStore} from '@/stores'
 import {logout} from '@/net'
 import router from '@/router'
+import {ElMessageBox} from "element-plus";
 
 function userLogout() {
-  logout(() => router.push('/'))
+  ElMessageBox.confirm('您确定要退出登录吗?').then((result) => {
+    if (result) {
+      logout(() => router.push('/'))
+    }
+  })
 }
 
 const getImageUrl = (user) => {

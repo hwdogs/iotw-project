@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import {ref, computed, Component} from 'vue';
+import {ref, computed} from 'vue';
 import {useRouter} from 'vue-router';
 import {useAllDataStore} from '@/stores'
+import {Options} from "element-plus";
 import {
   House,
   Box,
@@ -10,13 +11,12 @@ import {
   Setting
 } from '@element-plus/icons-vue'
 
-
 // 类型定义
 interface MenuItem {
   path: string;
   name: string;
   label: string;
-  icon: Component;
+  icon: Options;
   url?: string;
   children?: MenuItem[];
 }
