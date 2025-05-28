@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.example.entity.BaseData;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("db_account")
 @AllArgsConstructor
+@NoArgsConstructor
 public class Account implements BaseData {
     @TableId(type = IdType.ASSIGN_ID)
     Integer id;
@@ -24,4 +27,8 @@ public class Account implements BaseData {
     String email;
     Integer role;
     LocalDateTime registerTime;
+    LocalDate birth;
+    String address;
+    Integer sex;
+    Integer deleted;
 }
