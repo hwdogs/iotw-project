@@ -2,6 +2,8 @@ package org.example.entity.vo.response;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,4 +16,7 @@ public class AuthorizeVO {
     Integer role;
     String token;
     Date expires;
+    Integer sex;
+    LocalDate birthday;
+    LocalDateTime lastLogin;
 }

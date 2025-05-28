@@ -9,7 +9,6 @@ import org.example.entity.vo.response.AuthorizeVO;
 import org.example.filter.JwtAuthorizeFiller;
 import org.example.service.AccountService;
 import org.example.utils.JwtUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 
 /**
  * @author hwshou
@@ -88,7 +88,16 @@ public class SecurityConfiguration {
         AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v -> {
             v.setExpires(utils.expireTime());
             v.setToken(token);
+            v.setUsername(user.getUsername());;
+            v.setSex(account.getSex());
+            v.setBirthday(account.getBirth());
+            v.setLastLogin(account.getLastLoginTime());
         });
+
+        account.setLastLoginTime(LocalDateTime.now());
+        if(!service.updateById(account)) {
+            throw new RuntimeException("<UNK>");
+        }
 
         response.getWriter().write(RestBean.success(vo).asJsonString());
     }
