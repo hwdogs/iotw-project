@@ -1,33 +1,36 @@
 package org.example.entity.dto;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.Type;
+
 /**
  * <p>
- * 
+ * 类别实体类
  * </p>
  *
  * @author hwshou
  * @since 2025-05-28 20:16
  */
-@Getter
-@Setter
-@ToString
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("t_category")
 public class Category implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
      * 类别id
      */
-    @TableId("category_id")
+    @TableId(value = "category_id", type = IdType.AUTO)
     private Short categoryId;
 
     /**

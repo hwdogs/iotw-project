@@ -1,35 +1,37 @@
 package org.example.entity.dto;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 /**
  * <p>
- * 
+ * 货物实体类
  * </p>
  *
  * @author hwshou
  * @since 2025-05-28 20:16
  */
-@Getter
-@Setter
-@ToString
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("t_good")
 public class Good implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
      * 货物id
      */
-    @TableId("good_id")
+    @TableId(value = "good_id", type = IdType.ASSIGN_ID)
     private Integer goodId;
 
     /**

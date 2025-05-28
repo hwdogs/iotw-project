@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
+ * 账户实体类
+ *
  * @author hwshou
  * @date 2025/5/19  21:31
  */
