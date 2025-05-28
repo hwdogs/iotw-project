@@ -4,6 +4,7 @@ import {post, get} from '@/net'
 import {ElMessage, ElMessageBox} from "element-plus";
 import type {FormInstance} from 'element-plus'
 import {Plus, Search, RefreshLeft} from '@element-plus/icons-vue'
+import router from '@/router';
 
 
 //类型定义
@@ -148,6 +149,15 @@ const handleDelete = (id: number) => {
   })
 }
 
+const handleAlloc = (id: number) => {
+  router.push({
+    name: 'alloc-menus',
+    params: {
+      roleId: id,
+    }
+  })
+}
+
 onMounted(() => {
   getAccountData()
 })
@@ -284,7 +294,7 @@ onMounted(() => {
           :show-overflow-tooltip="col.showOverflowTooltip ?? false"
       />
 
-      <el-table-column label="操作" width="180" fixed="right">
+      <el-table-column label="操作" width="260" fixed="right">
         <template #default="{ row }">
           <el-button
               type="primary"
@@ -302,6 +312,15 @@ onMounted(() => {
               @click="handleDelete(row.id)"
           >
             删除
+          </el-button>
+          <el-button
+              type="warning"
+              size="default"
+              text
+              bg
+              @click="handleAlloc(row.id)"
+          >
+            分配权限
           </el-button>
         </template>
       </el-table-column>
