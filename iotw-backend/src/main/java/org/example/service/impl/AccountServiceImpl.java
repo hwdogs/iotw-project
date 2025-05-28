@@ -1,17 +1,24 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.dto.Account;
+import org.example.entity.vo.request.AccountQueryVO;
 import org.example.entity.vo.request.ConfirmResetVO;
 import org.example.entity.vo.request.EmailRegisterVO;
 import org.example.entity.vo.request.EmailRestVO;
+import org.example.entity.vo.response.AccountTableOV;
 import org.example.mapper.AccountMapper;
 import org.example.service.AccountService;
 import org.example.utils.Const;
 import org.example.utils.FlowUtils;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
@@ -50,6 +57,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Resource
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    AccountMapper accountMapper;
+
     /**
      * 从数据库中通过用户名或邮箱查找用户详细信息
      *
@@ -73,6 +83,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     /**
      * 邮件验证码重置密码操作，需要检查验证码是否正确
+     *
      * @param vo 重置基本信息
      * @return 操作结果，null表示正常，否则为错误原因
      */
@@ -85,7 +96,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         String password = passwordEncoder.encode(vo.getPassword());
         boolean update = this.update().eq("email", email).set("password", password).update();
-        if(update) {
+        if (update) {
             stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
         }
         return null;
@@ -93,6 +104,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     /**
      * 重置密码确认操作，验证验证码是否正确
+     *
      * @param vo 验证基本信息
      * @return 操作结果，null表示正常，否则为错误原因
      */
@@ -103,7 +115,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if (code == null) {
             return "请先获取验证码";
         }
-        if(!code.equals(vo.getCode())) {
+        if (!code.equals(vo.getCode())) {
             return "验证码错误，请重新输入";
         }
         return null;
@@ -166,13 +178,88 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             return "此用户名已被其他用户注册，请更新一个新的用户名";
         }
         String password = passwordEncoder.encode(vo.getPassword());
-        Account account = new Account(null, username, password, email, Const.RULE_USER, LocalDateTime.now());
+        Account account = new Account(null,
+                username,
+                password,
+                email,
+                Const.RULE_USER,
+                LocalDateTime.now(),
+                null,
+                null,
+                null,
+                Const.IS_NOT_DELETED
+        );
         if (this.save(account)) {
             stringRedisTemplate.delete(key);
             return null;
         } else {
             return "内部错误，请联系管理员";
         }
+    }
+
+
+    @Override
+    public IPage<AccountTableOV> queryByConditions(AccountQueryVO vo) {
+        //1.构建分页对象
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<Account> page =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
+                        vo.getPageNum(),
+                        vo.getPageSize(),
+                        true
+                );
+//        //设置优化参数
+//        page.setOptimizeCountSql(false);
+
+        //2.构建动态查询条件
+        LambdaQueryWrapper<Account> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(Account::getId, Account::getUsername, Account::getRole, Account::getBirth,
+                        Account::getSex, Account::getEmail, Account::getAddress, Account::getEmail)
+                .eq(Account::getDeleted, Const.IS_NOT_DELETED);
+
+        //3. 条件组合
+        if (StringUtils.isNotBlank(vo.getUsername())) {
+            wrapper.like(Account::getUsername, vo.getUsername());
+        }
+        if (vo.getRole() != null) {
+            wrapper.eq(Account::getRole, vo.getRole());
+        }
+        if (vo.getSex() != null) {
+            wrapper.eq(Account::getSex, vo.getSex());
+        }
+        if (vo.getStartBirth() != null && vo.getEndBirth() != null) {
+            wrapper.between(Account::getBirth, vo.getStartBirth(), vo.getEndBirth());
+        }
+        if (StringUtils.isNotBlank(vo.getEmail())) {
+            wrapper.like(Account::getEmail, vo.getEmail());
+        }
+
+        //4.动态排序
+        wrapper.orderBy(true, vo.getSortAsc(),
+                getSortLambda(vo.getSortField()));
+
+        //5.执行分页查询
+        IPage<Account> entityPage = accountMapper.selectPage(page, wrapper);
+
+        //6.转化为VO分页
+        return entityPage.convert(entity ->
+                new AccountTableOV(
+                        entity.getId(),
+                        entity.getUsername(),
+                        entity.getRole(),
+                        entity.getBirth(),
+                        entity.getSex(),
+                        entity.getEmail(),
+                        entity.getAddress()
+                ));
+    }
+
+    private SFunction<Account, ?> getSortLambda(String field) {
+        return switch (field) {
+            case "birth" -> Account::getBirth;
+            case "role" -> Account::getRole;
+            case "register_time" -> Account::getRegisterTime;
+            default -> Account::getId;
+        };
     }
 
     private boolean existsAccountEmail(String email) {
