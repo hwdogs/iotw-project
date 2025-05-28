@@ -276,55 +276,57 @@ onMounted(() => {
       <el-button type="primary" :icon="Plus" plain>新增用户</el-button>
     </div>
 
-    <!-- 数据表格 -->
-    <el-table
-        :data="tableData"
-        v-loading="loading"
-        style="width: 100%"
-        stripe
-        border
-        highlight-current-row
-    >
-      <el-table-column
-          v-for="col in tableLabel"
-          :key="col.prop"
-          :prop="col.prop"
-          :label="col.label"
-          :width="col.width"
-          :show-overflow-tooltip="col.showOverflowTooltip ?? false"
-      />
+    <div class="table-container">
+      <el-table
+          :data="tableData"
+          v-loading="loading"
+          style="width: 100%"
+          stripe
+          border
+      >
+        <el-table-column
+            v-for="col in tableLabel"
+            :key="col.prop"
+            :prop="col.prop"
+            :label="col.label"
+            :width="col.width"
+            :show-overflow-tooltip="col.showOverflowTooltip ?? false"
+        />
 
-      <el-table-column label="操作" width="260" fixed="right">
-        <template #default="{ row }">
-          <el-button
-              type="primary"
-              size="default"
-              text
-              bg
-          >
-            编辑
-          </el-button>
-          <el-button
-              type="danger"
-              size="default"
-              text
-              bg
-              @click="handleDelete(row.id)"
-          >
-            删除
-          </el-button>
-          <el-button
-              type="warning"
-              size="default"
-              text
-              bg
-              @click="handleAlloc(row.id)"
-          >
-            分配权限
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="操作" width="260" fixed="right">
+          <template #default="{ row }">
+            <el-button
+                type="primary"
+                size="default"
+                text
+                bg
+            >
+              编辑
+            </el-button>
+            <el-button
+                type="danger"
+                size="default"
+                text
+                bg
+                @click="handleDelete(row.id)"
+            >
+              删除
+            </el-button>
+            <el-button
+                type="warning"
+                size="default"
+                text
+                bg
+                @click="handleAlloc(row.id)"
+            >
+              分配权限
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <!-- 数据表格 -->
+
 
     <!-- 分页组件 -->
     <el-pagination
