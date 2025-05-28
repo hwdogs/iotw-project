@@ -22,6 +22,12 @@ public class AccountsController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * 请求账户信息
+     *
+     * @param vo 请求信息
+     * @return 响应对应vo类
+     */
     @PostMapping("/query")
     public RestBean<IPage<AccountTableOV>> queryAccounts(
             @Valid @RequestBody AccountQueryVO vo) {

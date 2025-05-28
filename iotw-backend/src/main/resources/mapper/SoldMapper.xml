@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.SoldMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.example.entity.dto.Sold">
+        <id column="sold_id" property="soldId" />
+        <result column="customer_id" property="customerId" />
+        <result column="good_id" property="goodId" />
+        <result column="sold_number" property="soldNumber" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        sold_id, customer_id, good_id, sold_number, create_time, update_time, deleted
+    </sql>
+
+</mapper>

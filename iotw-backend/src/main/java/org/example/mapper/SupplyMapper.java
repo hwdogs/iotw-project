@@ -2,14 +2,18 @@ package org.example.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.example.entity.dto.Account;
+import org.example.entity.dto.Supply;
 
 /**
- * account Mapper 接口
+ * <p>
+ * supply Mapper 接口
+ * </p>
  *
  * @author hwshou
- * @date 2025/5/19  22:09
+ * @since 2025-05-28 20:16
  */
 @Mapper
-public interface AccountMapper extends BaseMapper<Account> {
+public interface SupplyMapper extends BaseMapper<Supply> {
+
 }
+
