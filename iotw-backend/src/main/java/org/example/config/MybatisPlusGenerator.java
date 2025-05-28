@@ -22,7 +22,7 @@ public class MybatisPlusGenerator {
                         "123456")
                 .globalConfig(builder -> builder
                         .author("hwshou")
-                        .outputDir(Paths.get(System.getProperty("user.dir")) + "/src/main/java")
+                        .outputDir(Paths.get(System.getProperty("user.dir")) + "/iotw-backend/src/main/java")
                         .commentDate("yyyy-MM-dd HH:mm")
                 )
                 .packageConfig(builder -> builder
@@ -32,16 +32,17 @@ public class MybatisPlusGenerator {
                         .service("service")
                         .serviceImpl("service.impl")
                         .xml("mapper.xml")
-                        .pathInfo(Collections.singletonMap(OutputFile.xml,System.getProperty("user.dir")+"/src/main/resources/mapper"))
+                        .pathInfo(Collections.singletonMap(OutputFile.xml,System.getProperty("user.dir")+"/iotw-backend/src/main/resources/mapper"))
                 )
                 .strategyConfig(builder -> builder
-                        .addInclude("db_category",
-                                "db_customer",
-                                "db_good",
-                                "db_sold",
-                                "db_supplier",
-                                "db_supply",
-                                "db_warehouse")
+                        .addInclude("t_category",
+                                "t_customer",
+                                "t_good",
+                                "t_sold",
+                                "t_supplier",
+                                "t_supply",
+                                "t_warehouse")
+                        .addTablePrefix("t_", "c_")
                         .entityBuilder()
                         .enableLombok()
                         .enableTableFieldAnnotation()
