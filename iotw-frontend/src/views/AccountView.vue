@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, onMounted, reactive} from 'vue'
+import {ref, onMounted, reactive, computed} from 'vue'
 import {post, get} from '@/net'
 import {ElMessage, ElMessageBox} from "element-plus";
 import type {FormInstance} from 'element-plus'
@@ -16,19 +16,6 @@ interface Account {
   birth: string
   email: string
   address: string
-}
-
-interface QueryParams {
-  pageNum: number
-  pageSize: number
-  username?: string
-  role?: number | null
-  sex?: number | null
-  startBirth?: string
-  endBirth?: string
-  sortField?: 'birth' | 'role' | 'register_time' | 'id'
-  sortAsc?: boolean
-
 }
 
 // 添加列配置类型
@@ -140,26 +127,131 @@ const editForm = ref<FormInstance>()
 const editFormData = reactive({
   id: null as number | null,
   username: '',
+  password: '',
+  passwordConfirm: '',
+  email: '',
+  code: '',
   role: null as number | null,
   birth: '',
   sex: null as number | null,
-  email: '',
   address: ''
 })
 
-// 表单验证规则
+// 添加验证码相关变量
+const coldTime = ref(0)
+const timer = ref(null)
+
+// 邮箱验证
+const isEmailValid = computed(() => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(editFormData.email))
+
+// 获取验证码
+function askCode() {
+  if (isEmailValid.value) {
+    coldTime.value = 60
+    // 先清除可能存在的旧计时器
+    if (timer.value) clearInterval(timer.value);
+
+    get(`/api/auth/ask-code?email=${editFormData.email}&type=register`, () => {
+      ElMessage.success(`验证码已发送到邮箱: ${editFormData.email}, 请注意查收`)
+
+      // 启动新计时器并保存ID
+      timer.value = setInterval(() => {
+        coldTime.value--;
+        // 当倒计时结束时清除计时器
+        if (coldTime.value <= 0) {
+          clearInterval(timer.value);
+          coldTime.value = 0; // 可选：重置显示值
+        }
+      }, 1000);
+
+    }, (message) => {
+      ElMessage.warning(message)
+      coldTime.value = 0
+      clearInterval(timer.value);
+    })
+  } else {
+    ElMessage.warning('请输入正确的电子邮件!')
+  }
+}
+
+// 修改表单验证规则
 const rules = {
   username: [
     {pattern: /^[a-zA-Z0-9\u4e00-\u9fa5]+$/, message: '用户名只能包含字母、数字和中文', trigger: 'blur'},
     {min: 1, max: 10, message: '用户名长度在1-10个字符之间', trigger: 'blur'}
   ],
+  password: [
+    {required: true, message: '请输入密码', trigger: 'blur'},
+    {min: 6, max: 16, message: '密码的长度必须在6-16个字符之间', trigger: ['blur', 'change']}
+  ],
+  passwordConfirm: [
+    {validator: (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== editFormData.password) {
+        callback(new Error("两次输入的密码不一致"))
+      } else {
+        callback()
+      }
+    }, trigger: ['blur', 'change']}
+  ],
   email: [
-    {type: 'email' as const, message: '请输入正确的邮箱地址', trigger: 'blur'},
-    {min: 4, message: '邮箱长度不能小于4个字符', trigger: 'blur'}
+    {required: true, message: '请输入邮件地址', trigger: 'blur'},
+    {type: 'email' as const, message: '请输入合法的电子邮件地址', trigger: ['blur', 'change']}
+  ],
+  code: [
+    {required: true, message: '请输入获取的验证码', trigger: 'blur'},
+  ],
+  role: [
+    {required: true, message: '请选择角色', trigger: 'change'}
   ],
   sex: [
-    {type: 'number' as const, message: '请选择性别', trigger: 'change'}
+    {required: true, message: '请选择性别', trigger: 'change'}
   ]
+}
+
+//添加账户操作
+const handleAdd = () => {
+  dialogVisible.value = true
+  // Reset form data
+  for (const key in editFormData) {
+    const typedKey = key as keyof typeof editFormData
+    if (typedKey === 'id') {
+      editFormData[typedKey] = null
+    } else if (typedKey === 'role' || typedKey === 'sex') {
+      editFormData[typedKey] = null
+    } else {
+      editFormData[typedKey] = '' as any
+    }
+  }
+}
+
+// 提交添加表单
+const submitAddForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      // 构建请求数据
+      const requestData = {
+        username: editFormData.username,
+        password: editFormData.password,
+        email: editFormData.email,
+        code: editFormData.code,
+        role: editFormData.role,
+        birth: editFormData.birth,
+        sex: editFormData.sex,
+        address: editFormData.address
+      }
+
+      post('/api/account/register', requestData, () => {
+        ElMessage.success('添加成功')
+        dialogVisible.value = false
+        getAccountData()
+      }, (message) => {
+        ElMessage.error(message)
+      })
+    }
+  })
 }
 
 //更新操作
@@ -370,7 +462,7 @@ onMounted(() => {
 
     <!-- 操作按钮 -->
     <div class="action-buttons">
-      <el-button type="primary" :icon="Plus" plain>新增用户</el-button>
+      <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增用户</el-button>
     </div>
 
     <div class="table-container">
@@ -439,11 +531,12 @@ onMounted(() => {
         @size-change="handleSizeChange"
     />
 
-    <!-- 编辑对话框 -->
+    <!-- 编辑/添加对话框 -->
     <el-dialog
         v-model="dialogVisible"
-        title="编辑用户信息"
+        :title="editFormData.id ? '编辑用户信息' : '添加新用户'"
         width="500px"
+        draggable
         @close="handleClose"
     >
       <el-form
@@ -454,6 +547,32 @@ onMounted(() => {
       >
         <el-form-item label="用户名" prop="username">
           <el-input v-model="editFormData.username" placeholder="请输入用户名"/>
+        </el-form-item>
+
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="editFormData.password" type="password" placeholder="请输入密码"/>
+        </el-form-item>
+
+        <el-form-item label="确认密码" prop="passwordConfirm">
+          <el-input v-model="editFormData.passwordConfirm" type="password" placeholder="请再次输入密码"/>
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editFormData.email" placeholder="请输入邮箱"/>
+        </el-form-item>
+
+        <el-form-item label="验证码" prop="code">
+          <el-row :gutter="10" style="width: 100%">
+            <el-col :span="17">
+              <el-input v-model="editFormData.code" maxlength="6" type="text" placeholder="请输入验证码"/>
+            </el-col>
+            <el-col :span="5">
+              <el-button type="success" plain @click="askCode"
+                         :disabled="!isEmailValid || coldTime > 0">
+                {{ coldTime > 0 ? '请稍后 ' + coldTime + ' 秒' : '获取验证码' }}
+              </el-button>
+            </el-col>
+          </el-row>
         </el-form-item>
 
         <el-form-item label="角色" prop="role">
@@ -488,10 +607,6 @@ onMounted(() => {
           </el-select>
         </el-form-item>
 
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="editFormData.email" placeholder="请输入邮箱"/>
-        </el-form-item>
-
         <el-form-item label="地址" prop="address">
           <el-input v-model="editFormData.address" placeholder="请输入地址"/>
         </el-form-item>
@@ -500,8 +615,8 @@ onMounted(() => {
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitEditForm(editForm)">
-            确认
+          <el-button type="primary" @click="editFormData.id ? submitEditForm(editForm) : submitAddForm(editForm)">
+            {{ editFormData.id ? '确认编辑' : '确认添加' }}
           </el-button>
         </span>
       </template>
