@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
  * @date 2025/5/25  00:05
  */
 @Data
-public class EmailRegisterVO implements Verifiable {
+public class AccountEmailRegisterVO implements Verifiable {
     @Email
     @Length(min = 4)
     String email;

@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
  * @date 2025/5/25  16:49
  */
 @Data
-public class EmailRestVO {
+public class AccountEmailRestVO {
     @Email
     String email;
     @Length(max = 6, min = 6)
