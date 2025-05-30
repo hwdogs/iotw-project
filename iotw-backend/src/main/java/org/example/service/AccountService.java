@@ -3,10 +3,7 @@ package org.example.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.entity.dto.Account;
-import org.example.entity.vo.request.AccountQueryVO;
-import org.example.entity.vo.request.ConfirmResetVO;
-import org.example.entity.vo.request.EmailRegisterVO;
-import org.example.entity.vo.request.EmailRestVO;
+import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountTableOV;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -26,4 +23,6 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     String resetEmailAccountPassword(EmailRestVO vo);
 
     IPage<AccountTableOV> queryByConditions(AccountQueryVO vo);
+
+    String logicDeleteOneAccountRecord(Integer id);
 }

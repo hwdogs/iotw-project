@@ -8,17 +8,13 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.dto.Account;
-import org.example.entity.vo.request.AccountQueryVO;
-import org.example.entity.vo.request.ConfirmResetVO;
-import org.example.entity.vo.request.EmailRegisterVO;
-import org.example.entity.vo.request.EmailRestVO;
+import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountTableOV;
 import org.example.mapper.AccountMapper;
 import org.example.service.AccountService;
 import org.example.utils.Const;
 import org.example.utils.FlowUtils;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
@@ -28,8 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -57,7 +52,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Resource
     PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @Resource
     AccountMapper accountMapper;
 
     /**
@@ -255,6 +250,20 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 ));
     }
 
+    /**
+     * 逻辑删除账户记录
+     *
+     * @param id 需要删除账户的id
+     * @return 是否删除成功信息
+     */
+    @Override
+    public String logicDeleteOneAccountRecord(Integer id) {
+        int deleted = accountMapper.deleteById(id);
+        if (deleted != 0) {
+            return null;
+        }
+        return "删除失败";
+    }
     private SFunction<Account, ?> getSortLambda(String field) {
         return switch (field) {
             case "birth" -> Account::getBirth;

@@ -141,9 +141,11 @@ const handleDelete = (id: number) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    get(`/api/account/delete/${id}`, () => {
+    get(`/api/account/delete?id=${id}`, () => {
       ElMessage.success('删除成功')
       getAccountData()
+    }, (message) => {
+      ElMessage.error(message)
     })
   }).catch(() => {
   })

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/account")
 public class AccountsController {
 
-    @Autowired
+    @Resource
     private AccountService accountService;
 
     /**
@@ -33,4 +33,15 @@ public class AccountsController {
             @Valid @RequestBody AccountQueryVO vo) {
         return RestBean.success(accountService.queryByConditions(vo));
     }
+
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneAccount(@RequestParam Integer id) {
+        return responseUtils.messageHandle(id, accountService::logicDeleteOneAccountRecord);
+    }
+
+    @PostMapping("/update")
+    public RestBean<Void> updateOneAccount(@Valid @RequestBody AccountUpdateVO vo) {
+        return responseUtils.messageHandle(vo, accountService::updateOneAccount);
+    }
+
 }
