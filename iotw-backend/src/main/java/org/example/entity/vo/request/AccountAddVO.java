@@ -6,7 +6,6 @@ import org.example.entity.Verifiable;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDate;
@@ -18,7 +17,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccountAddVO extends EmailRegisterVO implements Verifiable {
+public class AccountAddVO extends AccountEmailRegisterVO implements Verifiable {
     @TableField("role")
     @JsonProperty("role")
     private Short role;

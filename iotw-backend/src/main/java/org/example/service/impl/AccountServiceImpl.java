@@ -85,7 +85,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      * @return 操作结果，null表示正常，否则为错误原因
      */
     @Override
-    public String resetEmailAccountPassword(EmailRestVO vo) {
+    public String resetEmailAccountPassword(AccountEmailRestVO vo) {
         String email = vo.getEmail();
         String verify = this.resetConfirm(new ConfirmResetVO(vo.getEmail(), vo.getCode()));
         if (verify != null) {
@@ -157,7 +157,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      * @return 操作结果，null表示正常，否则为错误原因
      */
     @Override
-    public String registerEmailAccount(EmailRegisterVO vo) {
+    public String registerEmailAccount(AccountEmailRegisterVO vo) {
         String message = verifyRegistration(vo);
         if (message != null) {
             return message;

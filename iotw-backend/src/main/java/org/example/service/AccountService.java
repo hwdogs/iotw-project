@@ -16,11 +16,11 @@ public interface AccountService extends IService<Account>, UserDetailsService {
 
     String registerEmailVerifyCode(String type, String email, String ip);
 
-    String registerEmailAccount(EmailRegisterVO vo);
+    String registerEmailAccount(AccountEmailRegisterVO vo);
 
     String resetConfirm(ConfirmResetVO vo);
 
-    String resetEmailAccountPassword(EmailRestVO vo);
+    String resetEmailAccountPassword(AccountEmailRestVO vo);
 
     IPage<AccountTableOV> queryByConditions(AccountQueryVO vo);
 
