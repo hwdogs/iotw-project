@@ -23,10 +23,10 @@ public class AccountUpdateVO implements DTOConverter {
     @Pattern(regexp = "^[a-zA-Z0-9\\u4e00-\\u9fa5]+$")
     @Length(min = 1, max = 10)
     String username;
-    Integer role;
+    Short role;
     LocalDate birth;
     @Range(min = 0, max = 1, message = "性别值只能是0或1")
-    Integer sex;
+    Short sex;
     @Email
     @Length(min = 4)
     String email;

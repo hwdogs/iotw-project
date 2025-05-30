@@ -13,10 +13,10 @@ import java.util.Date;
 @Data
 public class AuthorizeVO {
     String username;
-    Integer role;
+    Short role;
     String token;
     Date expires;
-    Integer sex;
+    Short sex;
     LocalDate birthday;
     LocalDateTime lastLogin;
 }

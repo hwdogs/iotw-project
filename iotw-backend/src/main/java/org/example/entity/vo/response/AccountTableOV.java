@@ -9,16 +9,16 @@ import java.time.LocalDate;
  * 查询账户列表返回的vo类
  *
  * @author hwshou
- * @date 2025/5/27  12:30
+ * @date 2025/5/27 12:30
  */
 @Data
 @AllArgsConstructor
 public class AccountTableOV {
     Integer id;
     String name;
-    Integer role;
+    Short role;
     LocalDate birth;
-    Integer sex;
+    Short sex;
     String email;
     String address;
 }
