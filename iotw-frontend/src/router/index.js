@@ -39,7 +39,7 @@ const router = createRouter({
                 {
                     path: 'mall',
                     name: 'mall',
-                    component: () => import('@/views/MallView.vue')
+                    component: () => import('@/views/GoodView.vue')
                 },
                 {
                     path: 'user',
