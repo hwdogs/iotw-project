@@ -6,6 +6,8 @@ import lombok.Data;
 import java.time.LocalDate;
 
 /**
+ * 查询账户列表返回的vo类
+ *
  * @author hwshou
  * @date 2025/5/27  12:30
  */

@@ -1,10 +1,5 @@
 package org.example.entity;
 
-/**
- * @author hwshou
- * @date 2025/5/20  17:39
- */
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
@@ -12,6 +7,9 @@ import java.util.function.Consumer;
 /**
  * 可以快速转化为指定的vo对象
  * 反射实现实体到VO的自动转换
+ *
+ * @author hwshou
+ * @date 2025/5/20  17:39
  */
 public interface BaseData {
 
