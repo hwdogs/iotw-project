@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @date 2025/5/19  21:31
  */
 @Data
-@TableName("db_account")
+@TableName("t_account")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Account implements BaseData {
