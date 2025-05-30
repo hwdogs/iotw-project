@@ -18,9 +18,20 @@
         <result column="deleted" property="deleted"/>
     </resultMap>
 
-    <!-- 通用查询结果 -->
+    <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, username, password, email, role, register_time, birth, address, sex, last_login_time, update_time, deleted;
+        id, username, password, email, role, register_time, birth, address, sex, last_login_time, update_time, deleted
     </sql>
+
+    <!-- 自定义插入语句 -->
+    <insert id="insert" parameterType="org.example.entity.dto.Account">
+        INSERT INTO t_account (
+            id, username, password, email, role, register_time, birth, address, sex, 
+            update_time
+        ) VALUES (
+            #{id}, #{username}, #{password}, #{email}, #{role}, #{registerTime}, #{birth}, 
+            #{address}, #{sex}, #{updateTime}
+        )
+    </insert>
 
 </mapper>
