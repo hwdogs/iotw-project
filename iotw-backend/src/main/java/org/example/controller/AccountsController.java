@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import org.example.entity.RestBean;
 import org.example.entity.vo.request.AccountQueryVO;
+import org.example.entity.vo.request.AccountUpdateVO;
 import org.example.entity.vo.response.AccountTableOV;
 import org.example.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,7 +9,7 @@ import router from '@/router';
 
 //类型定义
 interface Account {
-  id: string
+  id: number
   name: string
   role: number
   sex: number
@@ -46,7 +46,7 @@ const totalSearch = ref(0);
 
 const tableLabel = reactive<TableColumnConfig[]>([
   {prop: 'name', label: '用户名'},
-  {prop: 'role', label: '角色'},
+  {prop: 'roleLabel', label: '角色'},
   {prop: 'birth', label: '出生日期'},
   {prop: 'sexLabel', label: '性别'},
   {prop: 'email', label: '邮箱', showOverflowTooltip: true},
@@ -97,7 +97,7 @@ const getAccountData = () => {
 
         tableData.value = records.map((item: Account) => ({
           ...item,
-          role: ROLE_OPTIONS.find(r => r.value === item.role)?.label || '未知角色',
+          roleLabel: ROLE_OPTIONS.find(r => r.value === item.role)?.label || '未知角色',
           sexLabel: SEX_OPTIONS.find(s => s.value === item.sex)?.label || '未知'
         }))
 
@@ -105,7 +105,7 @@ const getAccountData = () => {
       }
     }, (err) => {
       console.log(err)
-      ElMessage.error(err)
+      ElMessage.error('table数据加载失败' + err)
     })
   } catch (error) {
     ElMessage.error('table数据加载失败')
@@ -132,6 +132,101 @@ const resetQuery = (formEl: FormInstance | undefined) => {
   formEl.resetFields()
   conditionForm.pageNum = 1
   getAccountData()
+}
+
+// 编辑对话框相关
+const dialogVisible = ref(false)
+const editForm = ref<FormInstance>()
+const editFormData = reactive({
+  id: null as number | null,
+  username: '',
+  role: null as number | null,
+  birth: '',
+  sex: null as number | null,
+  email: '',
+  address: ''
+})
+
+// 表单验证规则
+const rules = {
+  username: [
+    {pattern: /^[a-zA-Z0-9\u4e00-\u9fa5]+$/, message: '用户名只能包含字母、数字和中文', trigger: 'blur'},
+    {min: 1, max: 10, message: '用户名长度在1-10个字符之间', trigger: 'blur'}
+  ],
+  email: [
+    {type: 'email' as const, message: '请输入正确的邮箱地址', trigger: 'blur'},
+    {min: 4, message: '邮箱长度不能小于4个字符', trigger: 'blur'}
+  ],
+  sex: [
+    {type: 'number' as const, message: '请选择性别', trigger: 'change'}
+  ]
+}
+
+//更新操作
+const handleUpdate = (id: number) => {
+  // 获取当前行数据
+  const currentRow = tableData.value.find(item => Number(item.id) === id)
+  if (currentRow) {
+    editFormData.id = id
+    editFormData.username = currentRow.name
+    // 从原始数据中获取role和sex的数值
+    const originalData = tableData.value.find(item => Number(item.id) === id)
+    if (originalData) {
+      editFormData.role = originalData.role
+      editFormData.sex = originalData.sex
+    }
+    editFormData.birth = currentRow.birth
+    editFormData.email = currentRow.email
+    editFormData.address = currentRow.address
+    dialogVisible.value = true
+  }
+}
+
+// 提交编辑表单
+const submitEditForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      // 构建请求数据，只包含非空字段
+      const requestData: Record<string, any> = {}
+      const originalData = tableData.value.find(item => Number(item.id) === editFormData.id)
+
+      for (const key in editFormData) {
+        const value = editFormData[key as keyof typeof editFormData]
+        // 对于邮箱字段，只在值发生变化时才包含
+        if (key === 'email') {
+          if (value !== originalData?.email) {
+            requestData[key] = value
+          }
+        } else if (value !== null && value !== '') {
+          requestData[key] = value
+        }
+      }
+
+      post('/api/account/update', requestData, () => {
+        ElMessage.success('更新成功')
+        dialogVisible.value = false
+        getAccountData()
+      }, (message) => {
+        ElMessage.error(message)
+      })
+    }
+  })
+}
+
+// 关闭对话框时重置表单
+const handleClose = () => {
+  editForm.value?.resetFields()
+  for (const key in editFormData) {
+    const typedKey = key as keyof typeof editFormData
+    if (typedKey === 'id') {
+      editFormData[typedKey] = null
+    } else if (typedKey === 'role' || typedKey === 'sex') {
+      editFormData[typedKey] = null
+    } else {
+      editFormData[typedKey] = '' as any
+    }
+  }
 }
 
 // 删除操作
@@ -302,6 +397,7 @@ onMounted(() => {
                 size="default"
                 text
                 bg
+                @click="handleUpdate(row.id)"
             >
               编辑
             </el-button>
@@ -343,7 +439,76 @@ onMounted(() => {
         @size-change="handleSizeChange"
     />
 
+    <!-- 编辑对话框 -->
+    <el-dialog
+        v-model="dialogVisible"
+        title="编辑用户信息"
+        width="500px"
+        @close="handleClose"
+    >
+      <el-form
+          ref="editForm"
+          :model="editFormData"
+          :rules="rules"
+          label-width="100px"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="editFormData.username" placeholder="请输入用户名"/>
+        </el-form-item>
+
+        <el-form-item label="角色" prop="role">
+          <el-select v-model="editFormData.role" placeholder="请选择角色" style="width: 100%">
+            <el-option
+                v-for="item in ROLE_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="出生日期" prop="birth">
+          <el-date-picker
+              v-model="editFormData.birth"
+              type="date"
+              placeholder="选择日期"
+              style="width: 100%"
+              value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+
+        <el-form-item label="性别" prop="sex">
+          <el-select v-model="editFormData.sex" placeholder="请选择性别" style="width: 100%">
+            <el-option
+                v-for="item in SEX_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editFormData.email" placeholder="请输入邮箱"/>
+        </el-form-item>
+
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="editFormData.address" placeholder="请输入地址"/>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitEditForm(editForm)">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </div>
+
 </template>
 
 <style scoped lang="less">
@@ -392,5 +557,11 @@ onMounted(() => {
   --el-table-header-bg-color: var(--el-bg-color);
   --el-table-row-hover-bg-color: var(--el-fill-color-light);
   --el-table-current-row-bg-color: var(--el-fill-color);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 </style> 

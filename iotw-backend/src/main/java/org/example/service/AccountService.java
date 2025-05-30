@@ -25,4 +25,6 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     IPage<AccountTableOV> queryByConditions(AccountQueryVO vo);
 
     String logicDeleteOneAccountRecord(Integer id);
+
+    String updateOneAccount(AccountUpdateVO vo);
 }

@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -264,6 +265,34 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         return "删除失败";
     }
+
+    @Override
+    @Transactional
+    public String updateOneAccount(AccountUpdateVO vo) {
+        //1.参数校验
+        if (vo.getId() == null) {
+            return "id不能为空";
+        }
+        if (StringUtils.isNotBlank(vo.getEmail()) && this.existsAccountEmail(vo.getEmail())) {
+            return "此邮箱已被其他用户注册";
+        }
+
+        //2.查询现有账户
+        Account account = accountMapper.selectById(vo.getId());
+        if (account == null) {
+            return "账户不存在";
+        }
+
+        //3. 安全转换
+        Account updatedAccount = vo.asDTO(Account.class, target -> {
+            target.setUpdateTime(LocalDateTime.now());  //特殊字段处理
+        });
+
+        //4.执行更新操作
+        int result = accountMapper.updateById(updatedAccount);
+        return result > 0 ? null : "数据未变化";
+    }
+
     private SFunction<Account, ?> getSortLambda(String field) {
         return switch (field) {
             case "birth" -> Account::getBirth;
