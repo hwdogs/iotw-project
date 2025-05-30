@@ -125,7 +125,7 @@ public class JwtUtils {
         return JWT.create()
                 .withJWTId(UUID.randomUUID().toString())    //每个令牌都有自己随机的uuid
                 .withClaim("id", id)
-                .withClaim("name", username)
+                .withClaim("username", username)
                 .withClaim("authorities", details.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList())
                 .withExpiresAt(expire)
                 .withIssuedAt(new Date())
@@ -147,7 +147,7 @@ public class JwtUtils {
     public UserDetails toUser(DecodedJWT jwt) {
         Map<String, Claim> claims = jwt.getClaims();
         return User
-                .withUsername(claims.get("name").asString())
+                .withUsername(claims.get("username").asString())
                 .password("*******")
                 .authorities(claims.get("authorities").asArray(String.class))
                 .build();
