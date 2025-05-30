@@ -195,7 +195,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
     }
 
-
+    /**
+     * 账户表单的多条件分页查询，支持排序
+     *
+     * @param vo 查询条件请求vo
+     * @return 返回查询结果响应vo
+     */
     @Override
     public IPage<AccountTableOV> queryByConditions(AccountQueryVO vo) {
         //1.构建分页对象
@@ -211,7 +216,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         //2.构建动态查询条件
         LambdaQueryWrapper<Account> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(Account::getId, Account::getUsername, Account::getRole, Account::getBirth,
-                        Account::getSex, Account::getEmail, Account::getAddress, Account::getEmail)
+                        Account::getSex, Account::getEmail, Account::getAddress)
                 .eq(Account::getDeleted, Const.IS_NOT_DELETED);
 
         //3. 条件组合
