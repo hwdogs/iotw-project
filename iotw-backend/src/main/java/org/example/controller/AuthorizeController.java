@@ -9,6 +9,7 @@ import org.example.entity.vo.request.ConfirmResetVO;
 import org.example.entity.vo.request.EmailRegisterVO;
 import org.example.entity.vo.request.EmailRestVO;
 import org.example.service.AccountService;
+import org.example.utils.ResponseUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,9 @@ public class AuthorizeController {
     @Resource
     AccountService service;
 
+    @Resource
+    private ResponseUtils responseUtils;
+
     /**
      * 请求邮件验证码
      *
@@ -41,7 +45,7 @@ public class AuthorizeController {
     public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
                                         @RequestParam @Pattern(regexp = "(register|reset)") String type,
                                         HttpServletRequest request) {
-        return this.messageHandle(() ->
+        return responseUtils.messageHandle(() ->
                 service.registerEmailVerifyCode(type, email, request.getRemoteAddr()));
     }
 
@@ -53,7 +57,7 @@ public class AuthorizeController {
      */
     @PostMapping("/register")
     public RestBean<Void> register(@RequestBody EmailRegisterVO vo) {
-        return this.messageHandle(vo, service::registerEmailAccount);
+        return responseUtils.messageHandle(vo, service::registerEmailAccount);
     }
 
     /**
@@ -64,7 +68,7 @@ public class AuthorizeController {
      */
     @PostMapping("/reset-confirm")
     public RestBean<Void> resetConfirm(@RequestBody ConfirmResetVO vo) {
-        return this.messageHandle(vo, service::resetConfirm);
+        return responseUtils.messageHandle(vo, service::resetConfirm);
     }
 
     /**
@@ -75,22 +79,8 @@ public class AuthorizeController {
      */
     @PostMapping("/reset-password")
     public RestBean<Void> resetPassword(@RequestBody EmailRestVO vo) {
-        return this.messageHandle(vo, service::resetEmailAccountPassword);
+        return responseUtils.messageHandle(vo, service::resetEmailAccountPassword);
     }
 
-    private <T> RestBean<Void> messageHandle(T vo, Function<T, String> function) {
-        return messageHandle(() -> function.apply(vo));
-    }
 
-    /**
-     * 针对于返回值为String作为错误信息的方法进行统一处理
-     *
-     * @param action 具体操作
-     * @param <T>    响应结果类型
-     * @return 响应结果
-     */
-    private <T> RestBean<T> messageHandle(Supplier<String> action) {
-        String message = action.get();
-        return message == null ? RestBean.success() : RestBean.failure(400, message);
-    }
 }

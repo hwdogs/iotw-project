@@ -1,13 +1,14 @@
 package org.example.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.example.entity.RestBean;
 import org.example.entity.vo.request.AccountQueryVO;
 import org.example.entity.vo.request.AccountUpdateVO;
 import org.example.entity.vo.response.AccountTableOV;
 import org.example.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.utils.ResponseUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,6 +23,9 @@ public class AccountsController {
 
     @Resource
     private AccountService accountService;
+
+    @Resource
+    private ResponseUtils responseUtils;
 
     /**
      * 请求账户信息
