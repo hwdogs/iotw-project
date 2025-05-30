@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.example.entity.Verifiable;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountTableOV;
@@ -157,22 +158,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     @Override
     public String registerEmailAccount(EmailRegisterVO vo) {
-        String email = vo.getEmail();
+        String message = verifyRegistration(vo);
+        if (message != null) {
+            return message;
+        }
+
         String username = vo.getUsername();
-        String key = Const.VERIFY_EMAIL_DATA + email;
-        String code = stringRedisTemplate.opsForValue().get(key);
-        if (code == null) {
-            return "请先获取验证码";
-        }
-        if (!code.equals(vo.getCode())) {
-            return "验证码输入错误，请重新输入";
-        }
-        if (this.existsAccountEmail(email)) {
-            return "此邮箱已被其他用户注册";
-        }
-        if (this.existsAccountUsername(username)) {
-            return "此用户名已被其他用户注册，请更新一个新的用户名";
-        }
+        String email = vo.getEmail();
         String password = passwordEncoder.encode(vo.getPassword());
         Account account = new Account(null,
                 username,
@@ -188,7 +180,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 Const.IS_NOT_DELETED
         );
         if (this.save(account)) {
-            stringRedisTemplate.delete(key);
+            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + vo.getEmail());
             return null;
         } else {
             return "内部错误，请联系管理员";
@@ -296,6 +288,54 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         //4.执行更新操作
         int result = accountMapper.updateById(updatedAccount);
         return result > 0 ? null : "数据未变化";
+    }
+
+    @Override
+    public String addOneAccount(AccountAddVO vo) {
+
+        String message = verifyRegistration(vo);
+        if (message != null) {
+            return message;
+        }
+
+        // 创建Account对象并设置所有字段
+        Account account = new Account();
+        account.setUsername(vo.getUsername());
+        account.setPassword(passwordEncoder.encode(vo.getPassword()));
+        account.setEmail(vo.getEmail());
+        account.setRole(vo.getRole());
+        account.setBirth(vo.getBirth());
+        account.setAddress(vo.getAddress());
+        account.setSex(vo.getSex());
+        account.setRegisterTime(LocalDateTime.now());
+        account.setUpdateTime(LocalDateTime.now());
+
+        if (this.save(account)) {
+            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + vo.getEmail());
+            return null;
+        } else {
+            return "内部错误，请联系管理员";
+        }
+    }
+
+    private <T extends Verifiable> String verifyRegistration(T vo) {
+        String email = vo.getEmail();
+        String username = vo.getUsername();
+        String key = Const.VERIFY_EMAIL_DATA + email;
+        String code = stringRedisTemplate.opsForValue().get(key);
+        if (code == null) {
+            return "请先获取验证码";
+        }
+        if (!code.equals(vo.getCode())) {
+            return "验证码输入错误，请重新输入";
+        }
+        if (this.existsAccountEmail(email)) {
+            return "此邮箱已被其他用户注册";
+        }
+        if (this.existsAccountUsername(username)) {
+            return "此用户名已被其他用户注册，请更新一个新的用户名";
+        }
+        return null;
     }
 
     private SFunction<Account, ?> getSortLambda(String field) {

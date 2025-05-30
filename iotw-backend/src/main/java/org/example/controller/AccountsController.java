@@ -2,8 +2,12 @@ package org.example.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import org.example.entity.RestBean;
+import org.example.entity.vo.request.AccountAddVO;
 import org.example.entity.vo.request.AccountQueryVO;
 import org.example.entity.vo.request.AccountUpdateVO;
 import org.example.entity.vo.response.AccountTableOV;
@@ -39,14 +43,53 @@ public class AccountsController {
         return RestBean.success(accountService.queryByConditions(vo));
     }
 
+    /**
+     * 逻辑删除账户
+     *
+     * @param id 需要逻辑删除的账户id
+     * @return 是否删除成功
+     */
     @GetMapping("/delete")
     public RestBean<Void> deleteOneAccount(@RequestParam Integer id) {
         return responseUtils.messageHandle(id, accountService::logicDeleteOneAccountRecord);
     }
 
+    /**
+     * 更新账户信息
+     *
+     * @param vo 需要更新的账户信息vo类
+     * @return 是否更新成功
+     */
     @PostMapping("/update")
     public RestBean<Void> updateOneAccount(@Valid @RequestBody AccountUpdateVO vo) {
         return responseUtils.messageHandle(vo, accountService::updateOneAccount);
+    }
+
+    /**
+     * 需要认证后的注册接口。进行用户注册操作，需要先请求邮件验证码
+     *
+     * @param vo 注册信息
+     * @return 是否注册成功
+     */
+    @PostMapping("/register")
+    public RestBean<Void> register(@RequestBody AccountAddVO vo) {
+        return responseUtils.messageHandle(vo, accountService::addOneAccount);
+    }
+
+    /**
+     * 请求邮件验证码
+     *
+     * @param email   请求邮件
+     * @param type    类型
+     * @param request 请求
+     * @return 是否请求成功
+     */
+    @GetMapping("/ask-code")
+    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+                                        @RequestParam @Pattern(regexp = "(register|reset)") String type,
+                                        HttpServletRequest request) {
+        return responseUtils.messageHandle(() ->
+                accountService.registerEmailVerifyCode(type, email, request.getRemoteAddr()));
     }
 
 }

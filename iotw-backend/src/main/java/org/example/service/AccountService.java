@@ -27,4 +27,6 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     String logicDeleteOneAccountRecord(Integer id);
 
     String updateOneAccount(AccountUpdateVO vo);
+
+    String addOneAccount(AccountAddVO vo);
 }
