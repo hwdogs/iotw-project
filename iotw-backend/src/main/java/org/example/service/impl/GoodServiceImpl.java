@@ -12,7 +12,6 @@ import org.example.entity.vo.response.GoodTableVO;
 import org.example.mapper.GoodMapper;
 import org.example.service.GoodService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,19 +36,18 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
      */
     @Override
     public IPage<GoodTableVO> queryGoodTableByConditions(GoodQueryVO vo) {
-        //1.构建分页对象
+        // 1.构建分页对象
         Page<Good> page = new Page<>(
                 vo.getPageNum(),
                 vo.getPageSize(),
-                true
-        );
+                true);
 
-        //2.构建动态查询条件
+        // 2.构建动态查询条件
         LambdaQueryWrapper<Good> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(Good::getGoodId, Good::getGoodName, Good::getWarehouseId, Good::getCategory,
                 Good::getPrice, Good::getStandard, Good::getDescription, Good::getImage, Good::getCreateTime);
 
-        //3. 条件组合
+        // 3. 条件组合
         if (!StringUtils.isEmpty(vo.getGoodName())) {
             wrapper.like(Good::getGoodName, vo.getGoodName());
         }
@@ -66,10 +64,10 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
             wrapper.between(Good::getPrice, vo.getStartPrice(), vo.getEndPrice());
         }
 
-        //4.动态排序
+        // 4.动态排序
         wrapper.orderBy(true, vo.getSortAsc(),
                 getSortLambda(vo.getSortField()));
-        //6.转化为VO分页
+        // 6.转化为VO分页
         Page<Good> goodPage = goodMapper.selectPage(page, wrapper);
 
         return goodPage.convert(entity -> new GoodTableVO(
@@ -81,8 +79,7 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
                 entity.getStandard(),
                 entity.getDescription(),
                 entity.getImage(),
-                entity.getCreateTime()
-        ));
+                entity.getCreateTime()));
     }
 
     private SFunction<Good, ?> getSortLambda(String sortField) {
