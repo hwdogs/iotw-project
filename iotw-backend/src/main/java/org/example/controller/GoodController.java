@@ -31,4 +31,15 @@ public class GoodController {
     public RestBean<IPage<GoodTableVO>> queryTableByConditions(@Valid @RequestBody GoodQueryVO vo) {
         return RestBean.success(goodService.queryGoodTableByConditions(vo));
     }
+
+    /**
+     * 逻辑删除商品
+     *
+     * @param id 需要逻辑删除的商品id
+     * @return 是否删除成功
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneGood(@RequestParam Integer id) {
+        return responseUtils.messageHandle(id, goodService::logicDeleteOneGood);
+    }
 }

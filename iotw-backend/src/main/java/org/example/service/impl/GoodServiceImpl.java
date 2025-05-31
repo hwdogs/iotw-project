@@ -86,6 +86,15 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
     }
 
     @Override
+    public String logicDeleteOneGood(Integer id) {
+        int deleted = goodMapper.deleteById(id);
+        if (deleted != 0) {
+            return null;
+        }
+        return "删除失败";
+    }
+
+    @Override
     public String AddOneGood(Good good) {
         good.setCreateTime(LocalDateTime.now());
 
