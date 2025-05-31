@@ -69,7 +69,8 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
         // 4.动态排序
         wrapper.orderBy(true, vo.getSortAsc(),
                 getSortLambda(vo.getSortField()));
-        // 6.转化为VO分页
+
+        // 5.转化为VO分页
         Page<Good> goodPage = goodMapper.selectPage(page, wrapper);
 
         return goodPage.convert(entity -> new GoodTableVO(
