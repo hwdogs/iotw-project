@@ -6,6 +6,7 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -60,4 +61,8 @@ public class Warehouse implements Serializable {
     @TableField("deleted")
     @TableLogic
     private Short deleted;
+
+    // 关联账户ID列表
+    @TableField(exist = false)
+    private List<Integer> accountIds;
 }

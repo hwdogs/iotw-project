@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 返回仓库表格查询vo类
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class WarehouseTableVO {
     private Integer warehouseId;
     private String warehouseName;
+    private List<Integer> accountIds;  //从manage表获取
     private Integer area;
     private String description;
     private LocalDateTime updateTime;

@@ -26,6 +26,15 @@ public class WarehouseController {
     @Resource
     private WarehouseService warehouseService;
 
+    @Resource
+    private ResponseUtils responseUtils;
+
+    /**
+     * 请求仓库表格信息
+     *
+     * @param vo 请求信息
+     * @return 响应对应vo类
+     */
     @PostMapping("/query")
     public RestBean<IPage<WarehouseTableVO>> queryTableByConditions(@RequestBody WarehouseQueryVO vo) {
         return RestBean.success(warehouseService.queryWarehouseTableByConditions(vo));
