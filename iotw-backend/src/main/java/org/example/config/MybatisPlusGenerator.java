@@ -32,16 +32,10 @@ public class MybatisPlusGenerator {
                         .service("service")
                         .serviceImpl("service.impl")
                         .xml("mapper.xml")
-                        .pathInfo(Collections.singletonMap(OutputFile.xml,System.getProperty("user.dir")+"/iotw-backend/src/main/resources/mapper"))
+                        .pathInfo(Collections.singletonMap(OutputFile.xml, System.getProperty("user.dir") + "/iotw-backend/src/main/resources/mapper"))
                 )
                 .strategyConfig(builder -> builder
-                        .addInclude("t_category",
-                                "t_customer",
-                                "t_good",
-                                "t_sold",
-                                "t_supplier",
-                                "t_supply",
-                                "t_warehouse")
+                        .addInclude("t_manage")
                         .addTablePrefix("t_", "c_")
                         .entityBuilder()
                         .enableLombok()
