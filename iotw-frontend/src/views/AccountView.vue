@@ -353,7 +353,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="user-management">
+  <div class="user-management" style="width: auto;">
     <!--搜索表单-->
     <el-form
         ref="queryForm"
