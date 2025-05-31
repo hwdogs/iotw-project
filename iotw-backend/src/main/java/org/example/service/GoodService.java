@@ -16,4 +16,6 @@ import org.example.entity.vo.response.GoodTableVO;
  */
 public interface GoodService extends IService<Good> {
     IPage<GoodTableVO> queryGoodTableByConditions(GoodQueryVO vo);
+
+    String AddOneGood(Good good);
 }

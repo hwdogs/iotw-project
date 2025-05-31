@@ -14,6 +14,8 @@ import org.example.service.GoodService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  * 服务实现类
@@ -80,6 +82,13 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
                 entity.getDescription(),
                 entity.getImage(),
                 entity.getCreateTime()));
+    }
+
+    @Override
+    public String AddOneGood(Good good) {
+        good.setCreateTime(LocalDateTime.now());
+
+        return "";
     }
 
     private SFunction<Good, ?> getSortLambda(String sortField) {
