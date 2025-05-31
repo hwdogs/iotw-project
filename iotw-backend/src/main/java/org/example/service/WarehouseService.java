@@ -16,4 +16,6 @@ import org.example.entity.vo.response.WarehouseTableVO;
  */
 public interface WarehouseService extends IService<Warehouse> {
     IPage<WarehouseTableVO> queryWarehouseTableByConditions(WarehouseQueryVO vo);
+
+    String logicDeleteOneWarehouseRecord(Integer warehouseId);
 }

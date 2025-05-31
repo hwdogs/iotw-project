@@ -6,10 +6,8 @@ import org.example.entity.RestBean;
 import org.example.entity.vo.request.WarehouseQueryVO;
 import org.example.entity.vo.response.WarehouseTableVO;
 import org.example.service.WarehouseService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.utils.ResponseUtils;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -38,5 +36,16 @@ public class WarehouseController {
     @PostMapping("/query")
     public RestBean<IPage<WarehouseTableVO>> queryTableByConditions(@RequestBody WarehouseQueryVO vo) {
         return RestBean.success(warehouseService.queryWarehouseTableByConditions(vo));
+    }
+
+    /**
+     * 逻辑删除仓库
+     *
+     * @param id 需要删除的仓库id
+     * @return 是否删除成功
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneWarehouse(@RequestParam Integer id) {
+        return responseUtils.messageHandle(id, warehouseService::logicDeleteOneWarehouseRecord);
     }
 }
