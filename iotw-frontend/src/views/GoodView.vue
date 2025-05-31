@@ -19,6 +19,12 @@ interface Good {
   createTime: string
 }
 
+interface Warehouse {
+  warehouseId: number
+  warehouseName: string
+
+}
+
 // 添加列配置类型
 interface TableColumnConfig {
   prop: keyof Good | string
@@ -31,6 +37,7 @@ interface TableColumnConfig {
 const tableData = ref<Good[]>([])
 const loading = ref<boolean>(false)
 const totalSearch = ref(0)
+const warehouseList = ref<Warehouse[]>([])
 
 // 表格列配置
 const tableLabel = reactive<TableColumnConfig[]>([
@@ -102,6 +109,11 @@ const getGoodData = () => {
   } finally {
     loading.value = false
   }
+}
+
+//仓库数据
+const getWarehouseData = () => {
+
 }
 
 // 分页处理
@@ -347,7 +359,7 @@ onMounted(() => {
   width: 100%;
 
   .search-form {
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 
     .el-form-item {
       margin-right: 15px;
@@ -355,7 +367,7 @@ onMounted(() => {
   }
 
   .action-button {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
   }
 
   .pagination {

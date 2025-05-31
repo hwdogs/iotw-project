@@ -635,7 +635,7 @@ onMounted(() => {
   width: 100%;
 
   .search-form {
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 
     .el-form-item {
       margin-right: 15px;
@@ -643,7 +643,7 @@ onMounted(() => {
   }
 
   .action-button {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
   }
 
   .pagination {

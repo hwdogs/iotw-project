@@ -39,7 +39,7 @@ const router = createRouter({
                 {
                     path: 'good',
                     name: 'good',
-                    component: () => import('@/views/goods/GoodView.vue')
+                    component: () => import('@/views/GoodView.vue')
                 },
                 {
                     path: 'goods/:goodId/good-add-edit',
