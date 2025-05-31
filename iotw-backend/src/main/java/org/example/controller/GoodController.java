@@ -28,7 +28,7 @@ public class GoodController {
     private GoodService goodService;
 
     @PostMapping("/query")
-    public RestBean<IPage<GoodTableVO>> query(@Valid @RequestBody GoodQueryVO vo) {
+    public RestBean<IPage<GoodTableVO>> queryTableByConditions(@Valid @RequestBody GoodQueryVO vo) {
         return RestBean.success(goodService.queryGoodTableByConditions(vo));
     }
 }

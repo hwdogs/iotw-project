@@ -8,14 +8,14 @@
         <result column="warehouse_name" property="warehouseName" />
         <result column="account_id" property="accountId" />
         <result column="area" property="area" />
-        <result column="describe" property="describe" />
+        <result column="describe" property="description" />
         <result column="update_time" property="updateTime" />
         <result column="deleted" property="deleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        warehouse_id, warehouse_name, account_id, area, describe, update_time, deleted
+        warehouse_id, warehouse_name, account_id, area, description, update_time, deleted
     </sql>
 
 </mapper>

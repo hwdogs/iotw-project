@@ -51,8 +51,8 @@ public class Warehouse implements Serializable {
     /**
      * 仓库描述
      */
-    @TableField("describe")
-    private String describe;
+    @TableField("description")
+    private String description;
 
     /**
      * 仓库更新时间
