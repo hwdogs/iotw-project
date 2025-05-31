@@ -10,6 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommonAside: typeof import('./src/components/CommonAside.vue')['default']
     CommonHeader: typeof import('./src/components/CommonHeader.vue')['default']
+    CommonTab: typeof import('./src/components/CommonTab.vue')['default']
+    CommonTag: typeof import('./src/components/CommonTag.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
@@ -46,6 +48,7 @@ declare module 'vue' {
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTag: typeof import('element-plus/es')['ElTag']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

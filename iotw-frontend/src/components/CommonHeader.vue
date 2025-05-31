@@ -4,6 +4,7 @@ import {useAllDataStore} from '@/stores'
 import {logout} from '@/net'
 import router from '@/router'
 import {ElMessageBox} from "element-plus";
+import {computed} from "vue";
 
 function userLogout() {
   ElMessageBox.confirm('您确定要退出登录吗?').then((result) => {
@@ -18,9 +19,12 @@ const getImageUrl = (user) => {
 }
 
 const store = useAllDataStore();
+
 const handleCollapse = () => {
   store.state.isCollapse = !store.state.isCollapse
 }
+
+const current = computed(() => store.state.currentMenu)
 </script>
 
 <template>
@@ -30,6 +34,7 @@ const handleCollapse = () => {
       </el-button>
       <el-breadcrumb separator="/" class="bread">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="current" :to="current.path">{{ current.label }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="r-content">
