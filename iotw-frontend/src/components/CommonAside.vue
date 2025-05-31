@@ -9,6 +9,7 @@ import {
   User,
   More,
   Setting,
+  HomeFilled,
 } from '@element-plus/icons-vue'
 
 // 类型定义
@@ -45,6 +46,13 @@ const list = ref<MenuItem[]>([
     label: '账号管理',
     icon: User,
     url: 'User',
+  },
+  {
+    path: '/index/warehouse',
+    name: 'warehouse',
+    label: '仓库管理',
+    icon: HomeFilled,
+    url: 'warehoues'
   },
   {
     path: '/index/other',
