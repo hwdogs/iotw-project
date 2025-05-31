@@ -25,6 +25,15 @@ public class GoodController {
     @Resource
     private GoodService goodService;
 
+    @Resource
+    private ResponseUtils responseUtils;
+
+    /**
+     * 请求货物信息
+     *
+     * @param vo 请求信息
+     * @return 响应对应vo类
+     */
     @PostMapping("/query")
     public RestBean<IPage<GoodTableVO>> queryTableByConditions(@Valid @RequestBody GoodQueryVO vo) {
         return RestBean.success(goodService.queryGoodTableByConditions(vo));
