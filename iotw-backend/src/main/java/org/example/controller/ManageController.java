@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025-05-31 14:51
  */
 @RestController
-@RequestMapping("/manage")
+@RequestMapping("/api/manage")
 public class ManageController {
 
 }
