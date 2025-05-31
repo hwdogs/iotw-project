@@ -7,10 +7,8 @@ import org.example.entity.RestBean;
 import org.example.entity.vo.request.GoodQueryVO;
 import org.example.entity.vo.response.GoodTableVO;
 import org.example.service.GoodService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.utils.ResponseUtils;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
