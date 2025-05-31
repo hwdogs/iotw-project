@@ -21,7 +21,6 @@ public class WarehouseQueryVO {
 
     // 查询条件
     private String warehouseName;   //仓库名称模糊查询
-    private Integer accountId;       //管理仓库的账户筛选
     private Integer startArea;       //仓库占地范围查询
     private Integer endArea;
     private String startUpdateTime; //更新时间范围查询

@@ -37,12 +37,6 @@ public class Warehouse implements Serializable {
     private String warehouseName;
 
     /**
-     * 仓库负责人
-     */
-    @TableField("account_id")
-    private Integer accountId;
-
-    /**
      * 仓库面积
      */
     @TableField("area")

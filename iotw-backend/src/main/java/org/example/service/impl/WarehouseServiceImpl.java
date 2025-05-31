@@ -41,15 +41,12 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
 
         // 2.构建动态查询条件
         LambdaQueryWrapper<Warehouse> wrapper = new LambdaQueryWrapper<>();
-        wrapper.select(Warehouse::getWarehouseId, Warehouse::getWarehouseName, Warehouse::getAccountId,
+        wrapper.select(Warehouse::getWarehouseId, Warehouse::getWarehouseName,
                 Warehouse::getArea, Warehouse::getDescription, Warehouse::getUpdateTime);
 
         // 3.条件查询
         if (StringUtils.isNotBlank(vo.getWarehouseName())) {
             wrapper.like(Warehouse::getWarehouseName, vo.getWarehouseName());
-        }
-        if (vo.getAccountId() != null) {
-            wrapper.eq(Warehouse::getAccountId, vo.getAccountId());
         }
         if (vo.getStartArea() != null && vo.getEndArea() != null) {
             wrapper.between(Warehouse::getArea, vo.getStartArea(), vo.getEndArea());
@@ -66,9 +63,8 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         Page<Warehouse> warehousePage = warehouseMapper.selectPage(page, wrapper);
 
         return warehousePage.convert(entity -> new WarehouseTableVO(
-                entity.getAccountId(),
+                entity.getWarehouseId(),
                 entity.getWarehouseName(),
-                entity.getAccountId(),
                 entity.getArea(),
                 entity.getDescription(),
                 entity.getUpdateTime()
@@ -77,7 +73,6 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
 
     private SFunction<Warehouse, ?> getSortLambda(String sortField) {
         return switch (sortField) {
-            case "account_id" -> Warehouse::getAccountId;
             case "area" -> Warehouse::getArea;
             case "update_time" -> Warehouse::getUpdateTime;
             default -> Warehouse::getWarehouseId;

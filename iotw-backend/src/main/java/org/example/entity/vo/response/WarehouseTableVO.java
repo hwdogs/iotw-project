@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 public class WarehouseTableVO {
     private Integer warehouseId;
     private String warehouseName;
-    private Integer accountId;
     private Integer area;
     private String description;
     private LocalDateTime updateTime;
