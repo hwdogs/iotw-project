@@ -3,6 +3,7 @@ import {ref, onMounted, reactive} from 'vue'
 import {post, get} from '@/net'
 import {ElMessage, ElMessageBox} from "element-plus";
 import type {FormInstance} from 'element-plus'
+import router from '@/router';
 import {Plus, Search, RefreshLeft} from '@element-plus/icons-vue'
 
 // 类型定义
@@ -123,14 +124,15 @@ const resetQuery = (formEl: FormInstance | undefined) => {
   getGoodData()
 }
 
-// 添加商品操作
-const handleAdd = () => {
-  // TODO: 实现添加商品功能
-}
 
-// 更新商品操作
-const handleUpdate = (id: number) => {
-  // TODO: 实现更新商品功能
+// 添加商品操作
+const handleAddOrEdit = (id: number | null) => {
+  router.push({
+    name: 'good-add-edit',
+    params: {
+      goodId: id || 'new'
+    }
+  })
 }
 
 // 删除商品操作
@@ -156,7 +158,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="good-management">
+  <div class="good-management" style="width: auto;">
     <!-- 搜索表单 -->
     <el-form
         ref="queryForm"
@@ -275,7 +277,7 @@ onMounted(() => {
 
     <!-- 操作按钮 -->
     <div class="action-buttons">
-      <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增商品</el-button>
+      <el-button type="primary" :icon="Plus" plain @click="handleAddOrEdit(null)">新增商品</el-button>
     </div>
 
     <!-- 数据表格 -->
@@ -303,7 +305,7 @@ onMounted(() => {
                 size="default"
                 text
                 bg
-                @click="handleUpdate(row.goodId)"
+                @click="handleAddOrEdit(row.goodId)"
             >
               编辑
             </el-button>

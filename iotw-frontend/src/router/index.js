@@ -37,9 +37,15 @@ const router = createRouter({
                     component: () => import('@/views/HomeView.vue')
                 },
                 {
-                    path: 'mall',
-                    name: 'mall',
-                    component: () => import('@/views/GoodView.vue')
+                    path: 'good',
+                    name: 'good',
+                    component: () => import('@/views/goods/GoodView.vue')
+                },
+                {
+                    path: 'goods/:goodId/good-add-edit',
+                    name: 'good-add-edit',
+                    component: () => import('@/views/goods/AddGoodView.vue'),
+                    props: true
                 },
                 {
                     path: 'user',
@@ -69,7 +75,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const isUnauthorized = unauthorize()
-    if (to.name.startsWith('welcome-') && !isUnauthorized) {
+    if (to.name && to.name.startsWith('welcome-') && !isUnauthorized) {
         next('/index')
     } else if (to.fullPath.startsWith('/index') && isUnauthorized) {
         next('/')
