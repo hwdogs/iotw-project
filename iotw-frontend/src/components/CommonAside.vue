@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref, computed} from 'vue';
-import {useRouter} from 'vue-router';
+import {useRouter, useRoute} from 'vue-router';
 import {useAllDataStore} from '@/stores'
 import {Options} from "element-plus";
 import {
@@ -8,7 +8,7 @@ import {
   Box,
   User,
   More,
-  Setting
+  Setting,
 } from '@element-plus/icons-vue'
 
 // 类型定义
@@ -22,6 +22,7 @@ interface MenuItem {
 }
 
 const router = useRouter();
+const route = useRoute();
 
 const list = ref<MenuItem[]>([
   {
@@ -32,11 +33,11 @@ const list = ref<MenuItem[]>([
     url: 'Home',
   },
   {
-    path: '/index/mall',
-    name: 'mall',
+    path: '/index/good',
+    name: 'good',
     label: '商品管理',
     icon: Box,
-    url: 'Mall',
+    url: 'Good',
   },
   {
     path: '/index/user',
@@ -77,6 +78,7 @@ const hasChildren = computed(() =>
 
 const clickMenu = (item: MenuItem) => {
   router.push(item.path)
+  store.selectMenu(item)
 }
 
 const store = useAllDataStore();
@@ -84,6 +86,9 @@ const store = useAllDataStore();
 const isCollapse = computed(() => store.state.isCollapse)
 // width
 const width = computed(() => store.state.isCollapse ? '64px' : '192px')
+
+const activeMenu = computed(() => route.path)
+
 </script>
 
 <template>
@@ -91,6 +96,7 @@ const width = computed(() => store.state.isCollapse ? '64px' : '192px')
     <el-menu
         :collapse="isCollapse"
         :collapse-transition="false"
+        :default-active="activeMenu"
     >
       <h3 v-show="!isCollapse" key="full">IOTW</h3>
       <h3 v-show="isCollapse" key="collapse">W</h3>
