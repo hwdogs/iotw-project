@@ -59,4 +59,15 @@ public class WarehouseController {
     public RestBean<Void> updateOneWarehouse(@RequestBody WarehouseUpdateVO vo) {
         return responseUtils.messageHandle(vo, warehouseService::updateOneWarehouse);
     }
+
+    /**
+     * 新增仓库
+     *
+     * @param vo 新增仓库信息
+     * @return 是否新增成功
+     */
+    @PostMapping("/add")
+    public RestBean<Void> addOneWarehouse(@RequestBody WarehouseAddVO vo) {
+        return responseUtils.messageHandle(vo, warehouseService::addOneWarehouse);
+    }
 }

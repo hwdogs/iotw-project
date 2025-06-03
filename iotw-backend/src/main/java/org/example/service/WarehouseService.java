@@ -20,4 +20,6 @@ public interface WarehouseService extends IService<Warehouse> {
     String logicDeleteOneWarehouseRecord(Integer warehouseId);
 
     String updateOneWarehouse(WarehouseUpdateVO vo);
+
+    String addOneWarehouse(WarehouseAddVO vo);
 }
