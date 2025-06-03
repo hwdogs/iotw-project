@@ -48,4 +48,15 @@ public class WarehouseController {
     public RestBean<Void> deleteOneWarehouse(@RequestParam Integer id) {
         return responseUtils.messageHandle(id, warehouseService::logicDeleteOneWarehouseRecord);
     }
+
+    /**
+     * 更新仓库信息，可以顺带更新manage表
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @PostMapping("/update")
+    public RestBean<Void> updateOneWarehouse(@RequestBody WarehouseUpdateVO vo) {
+        return responseUtils.messageHandle(vo, warehouseService::updateOneWarehouse);
+    }
 }

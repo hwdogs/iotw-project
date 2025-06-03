@@ -18,4 +18,6 @@ public interface WarehouseService extends IService<Warehouse> {
     IPage<WarehouseTableVO> queryWarehouseTableByConditions(WarehouseQueryVO vo);
 
     String logicDeleteOneWarehouseRecord(Integer warehouseId);
+
+    String updateOneWarehouse(WarehouseUpdateVO vo);
 }

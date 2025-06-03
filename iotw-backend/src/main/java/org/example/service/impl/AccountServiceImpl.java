@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 import org.example.entity.Verifiable;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
+import org.example.entity.vo.response.AccountIdUsernameVO;
 import org.example.entity.vo.response.AccountTableOV;
 import org.example.mapper.AccountMapper;
 import org.example.service.AccountService;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 账户信息处理相关服务
@@ -316,6 +318,28 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         } else {
             return "内部错误，请联系管理员";
         }
+    }
+
+    /**
+     * 获取account表中所有账户的id和username
+     * @return 列表结果
+     */
+    @Override
+    public List<AccountIdUsernameVO> getAllAccountIdsAndUsernames() {
+        // 构建查询条件：只查询未删除的账户，选择id和username字段
+        LambdaQueryWrapper<Account> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(Account::getId, Account::getUsername)
+                .eq(Account::getDeleted, Const.IS_NOT_DELETED);
+
+        // 执行查询并转换为VO列表
+        return this.list(wrapper).stream()
+                .map(account -> {
+                    AccountIdUsernameVO vo = new AccountIdUsernameVO();
+                    vo.setId(account.getId());
+                    vo.setUsername(account.getUsername());
+                    return vo;
+                })
+                .collect(Collectors.toList());
     }
 
     private <T extends Verifiable> String verifyRegistration(T vo) {

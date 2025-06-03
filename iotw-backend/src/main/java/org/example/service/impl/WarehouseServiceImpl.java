@@ -155,9 +155,128 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         return "删除失败";
     }
 
+    /**
+     * 更新仓库信息，顺带更新manage表
+     *
+     * @param vo 更新仓库信息
+     * @return 是否更新成功
+     */
     @Override
-    public String updateOneAccount() {
-        return "";
+    public String updateOneWarehouse(WarehouseUpdateVO vo) {
+        if (vo.getWarehouseId() == null) {
+            return "id不能为空";
+        }
+        Warehouse originalWarehouse = warehouseMapper.selectById(vo.getWarehouseId());
+        if (originalWarehouse == null) {
+            return "仓库不存在，检查id是否有误";
+        }
+
+        Warehouse updateWarehouse = vo.asDTO(Warehouse.class, target -> {
+            target.setUpdateTime(LocalDateTime.now());  //处理特殊字段
+        });
+
+        int updated = warehouseMapper.updateById(updateWarehouse);
+        if (updated == 0) {
+            return "更新失败";
+        }
+
+        //如果要更新被关联的accountIds
+        if (vo.getAccountIds() != null && !vo.getAccountIds().isEmpty()) {
+            // 1.查询原始关联账户ID列表
+            List<Integer> originalAccountIds = manageMapper.selectAccountIdsByWarehouseId(vo.getWarehouseId());
+
+            // 2.计算需要删除的关联
+            List<Integer> toDelete = originalAccountIds.stream()
+                    .filter(id -> !vo.getAccountIds().contains(id))
+                    .collect(Collectors.toList());
+
+            // 3.计算需要新增的关联
+            List<Integer> toAdd = vo.getAccountIds().stream()
+                    .filter(id -> !originalAccountIds.contains(id))
+                    .collect(Collectors.toList());
+
+            // 4.删除不再关联的账户
+            if (!toDelete.isEmpty()) {
+                LambdaUpdateWrapper<Manage> deleteWrapper = new LambdaUpdateWrapper<>();
+                deleteWrapper.in(Manage::getAccountId, toDelete)
+                        .eq(Manage::getWarehouseId, vo.getWarehouseId())
+                        .set(Manage::getDeleted, 1);
+                manageMapper.update(null, deleteWrapper);
+            }
+
+            // 5.新增关联账户
+            if (!toAdd.isEmpty()) {
+                //判断新增的管理员账户是否存在
+                for (Integer accountId : toAdd) {
+                    Account account = accountMapper.selectById(accountId);
+                    if (account == null) {
+                        return "新增的管理员账户id: " + accountId.toString() + " 不存在！";
+                    }
+                }
+
+                List<Manage> newManages = toAdd.stream()
+                        .map(accountId -> new Manage(null,
+                                vo.getWarehouseId(),
+                                accountId,
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                null))
+                        .collect(Collectors.toList());
+                manageMapper.insert(newManages);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 新增仓库
+     *
+     * @param vo 新增仓库的信息
+     * @return 是否添加成功
+     */
+    @Override
+    public String addOneWarehouse(WarehouseAddVO vo) {
+        // 1. 创建仓库实体并设置时间
+        Warehouse warehouse = vo.asDTO(Warehouse.class, target -> {
+            target.setCreateTime(LocalDateTime.now());
+            target.setUpdateTime(LocalDateTime.now());
+        });
+
+        // 2. 插入仓库记录，主键为自增
+        int inserted = warehouseMapper.insert(warehouse);
+        if (inserted == 0) {
+            return "添加仓库失败";
+        }
+
+        // 3. 获取新生成的仓库ID
+        Integer newWarehouseId = warehouse.getWarehouseId();
+
+        // 4. 如果存在accountIds，处理关联账户
+        if (vo.getAccountIds() != null && !vo.getAccountIds().isEmpty()) {
+            List<Integer> invalidIds = vo.getAccountIds().stream()
+                    .filter(accountId -> accountMapper.selectById(accountId) == null)
+                    .collect(Collectors.toList());
+
+            if (!invalidIds.isEmpty()) {
+                return "以下账户ID不存在: " + invalidIds;
+            }
+
+            // 4.2 构建管理关系列表
+            List<Manage> newManages = vo.getAccountIds().stream()
+                    .map(accountId -> new Manage(null,
+                            newWarehouseId,
+                            accountId,
+                            LocalDateTime.now(),
+                            LocalDateTime.now(),
+                            null))
+                    .collect(Collectors.toList());
+
+            // 4.3 插入管理关系
+            manageMapper.insert(newManages);
+        }
+
+        return null;
     }
 
     private SFunction<Warehouse, ?> getSortLambda(String sortField) {

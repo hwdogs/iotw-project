@@ -17,17 +17,9 @@ import java.util.List;
 @Mapper
 public interface ManageMapper extends BaseMapper<Manage> {
 
-    @Select("<script>" +
-            "SELECT warehouse_id, account_id FROM t_manage " +
-            "WHERE warehouse_id IN " +
-            "<foreach item='id' collection='warehouseIds' open='(' separator=',' close=')'>" +
-            "   #{id}" +
-            "</foreach>" +
-            "</script>")
-//    @Results({
-//            @Result(column = "warehouse_id", property = "warehouseId"),
-//            @Result(column = "account_id", property = "accountId")
-//    })
     List<Manage> selectByWarehouseIds(@Param("warehouseIds") List<Integer> warehouseIds);
+
+    @Select("SELECT account_id FROM t_manage WHERE warehouse_id = #{warehouseId} AND deleted = 0")
+    List<Integer> selectAccountIdsByWarehouseId(@Param("warehouseId") Integer warehouseId);
 }
 

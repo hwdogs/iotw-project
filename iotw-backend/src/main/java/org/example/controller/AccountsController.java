@@ -10,10 +10,13 @@ import org.example.entity.RestBean;
 import org.example.entity.vo.request.AccountAddVO;
 import org.example.entity.vo.request.AccountQueryVO;
 import org.example.entity.vo.request.AccountUpdateVO;
+import org.example.entity.vo.response.AccountIdUsernameVO;
 import org.example.entity.vo.response.AccountTableOV;
 import org.example.service.AccountService;
 import org.example.utils.ResponseUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 处理总体账户操作
@@ -92,4 +95,13 @@ public class AccountsController {
                 accountService.registerEmailVerifyCode(type, email, request.getRemoteAddr()));
     }
 
+    /**
+     * 请求所有账户id和username
+     *
+     * @return 请求结果
+     */
+    @GetMapping("/ids-and-usernames")
+    public RestBean<List<AccountIdUsernameVO>> getAccountIdsAndUsernames(){
+        return RestBean.success(accountService.getAllAccountIdsAndUsernames());
+    }
 }

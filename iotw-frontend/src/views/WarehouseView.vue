@@ -133,6 +133,16 @@ const resetQuery = (formEl: FormInstance | undefined) => {
 
 const handleAdd = () => {
     //添加仓库
+const handleEdit = (warehouse: Warehouse) => {
+  router.push({
+    name: 'manage',
+    query: { 
+      type: 'edit',
+      id: warehouse.warehouseId
+    }
+  })
+}
+
 }
 
 onMounted(() => {
@@ -169,6 +179,22 @@ onMounted(() => {
             :min="0"
             placeholder="最大面积"
             style="width: 130px"
+        />
+      </el-form-item>
+
+      <el-form-item label="创建时间">
+        <el-date-picker
+            v-model="conditionForm.startCreateTime"
+            type="datetime"
+            placeholder="开始时间"
+            value-format="YYYY-MM-DD HH:mm:ss"
+        />
+        <span style="margin: 0 8px;">—</span>
+        <el-date-picker
+            v-model="conditionForm.endCreateTime"
+            type="datetime"
+            placeholder="结束时间"
+            value-format="YYYY-MM-DD HH:mm:ss"
         />
       </el-form-item>
 
@@ -251,6 +277,14 @@ onMounted(() => {
             :width="col.width"
             :show-overflow-tooltip="col.showOverflowTooltip ?? false"
         />
+        <el-table-column label="操作" width="200" fixed="right">
+          <template #default="{ row }">
+            <el-button
+                type="primary"
+                size="default"
+                text
+                bg
+                @click="handleEdit(row)"
       </el-table>
     </div>
 

@@ -2,6 +2,7 @@ package org.example.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.*;
+import org.example.entity.BaseData;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_warehouse")
-public class Warehouse implements Serializable {
+public class Warehouse implements Serializable, BaseData {
 
     @Serial
     private static final long serialVersionUID = 1L;

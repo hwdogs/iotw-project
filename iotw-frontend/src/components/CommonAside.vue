@@ -53,6 +53,13 @@ const list = ref<MenuItem[]>([
     label: '仓库管理',
     icon: HomeFilled,
     url: 'warehoues'
+      {
+        path: '/index/manage',
+        name: 'manage',
+        label: '仓库管理',
+        icon: markRaw(HomeFilled),
+        url: 'Manage',
+      }
   },
   {
     path: '/index/other',

@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
+import org.example.entity.vo.response.AccountIdUsernameVO;
 import org.example.entity.vo.response.AccountTableOV;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 /**
  * @author hwshou
@@ -29,4 +32,6 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     String updateOneAccount(AccountUpdateVO vo);
 
     String addOneAccount(AccountAddVO vo);
+
+    List<AccountIdUsernameVO> getAllAccountIdsAndUsernames();
 }

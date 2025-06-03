@@ -17,4 +17,21 @@
         manage_id, warehouse_id, account_id, create_time, update_time, deleted
     </sql>
 
+    <select id="selectAccountIdsByWarehouseId" resultType="java.lang.Integer">
+        SELECT account_id
+        FROM t_manage
+        WHERE warehouse_id = #{warehouseId}
+          AND deleted = 0
+    </select>
+
+    <select id="selectByWarehouseIds" resultType="org.example.entity.dto.Manage">
+        SELECT warehouse_id, account_id
+        FROM t_manage
+        WHERE deleted = 0
+        AND warehouse_id IN
+        <foreach item="id" collection="warehouseIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
