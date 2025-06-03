@@ -150,14 +150,14 @@ const resetQuery = (formEl: FormInstance | undefined) => {
 
 const handleAdd = () => {
   router.push({
-    name: 'manage',
+    name: 'warehouse_add_or_update',
     query: { type: 'add' }
   })
 }
 
 const handleEdit = (warehouse: Warehouse) => {
   router.push({
-    name: 'manage',
+    name: 'warehouse_add_or_update',
     query: { 
       type: 'edit',
       id: warehouse.warehouseId
@@ -182,30 +182,6 @@ const handleDelete = (id: number) => {
   })
 }
 
-// 提交仓库表单（添加/编辑）
-const submitWarehouseForm = ()=>{
-  formRef.value?.validate((valid) => {
-    if (valid) {
-      const apiUrl = 'add'
-        ? `/api/warehouse/add` :
-          `/api/warehouse/update`
-
-      const formData = 'add'
-        ? {...warehouseForm} :
-          {
-            warehouseId: warehouseForm.warehouseId,
-            ...warehouseForm
-          }
-
-      post(apiUrl, formData, () => {
-        ElMessage.success('操作成功')
-        getWarehouseData()
-      }, (message) => {
-        ElMessage.error('操作失败: ' + message)
-      })
-    }
-  })
-}
 
 onMounted(() => {
   getWarehouseData()

@@ -1,12 +1,12 @@
-import {defineStore} from "pinia";
-import {ref} from "vue";
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
 function initState() {
     return {
         isCollapse: false,
         tags: [
             {
-                path: '/home',
+                path: '/index/home',
                 name: 'home',
                 label: '首页',
                 icon: 'Home'
@@ -14,7 +14,6 @@ function initState() {
         ],
         currentMenu: null
     }
-
 }
 
 export const useAllDataStore = defineStore('allData', () => {

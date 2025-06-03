@@ -83,11 +83,11 @@ const list = ref<MenuItem[]>([
         url: 'Warehouse',
       },
       {
-        path: '/index/manage',
-        name: 'manage',
+        path: '/index/warehouse_add_or_update',
+        name: 'warehouse_add_or_update',
         label: '仓库管理',
         icon: markRaw(HomeFilled),
-        url: 'Manage',
+        url: 'WarehouseAddOrUpdate',
       }
     ]
   },
