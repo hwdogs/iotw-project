@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.example.entity.dto.Warehouse;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.entity.vo.request.WarehouseQueryVO;
+import org.example.entity.vo.request.WarehouseUpdateVO;
 import org.example.entity.vo.response.WarehouseTableVO;
 
 /**

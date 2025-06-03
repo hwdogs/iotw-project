@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import org.example.entity.RestBean;
 import org.example.entity.vo.request.WarehouseQueryVO;
+import org.example.entity.vo.request.WarehouseUpdateVO;
 import org.example.entity.vo.response.WarehouseTableVO;
 import org.example.service.WarehouseService;
 import org.example.utils.ResponseUtils;
