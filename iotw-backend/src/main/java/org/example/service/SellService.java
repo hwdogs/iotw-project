@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.entity.dto.Sold;
+import org.example.entity.dto.Sell;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author hwshou
  * @since 2025-05-28 20:16
  */
-public interface SoldService extends IService<Sold> {
+public interface SellService extends IService<Sell> {
 
 }

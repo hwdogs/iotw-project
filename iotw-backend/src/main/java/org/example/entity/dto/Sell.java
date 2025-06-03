@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("t_sold")
-public class Sold implements Serializable {
+@TableName("t_sell")
+public class Sell implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,8 +27,8 @@ public class Sold implements Serializable {
     /**
      * 售出订单id
      */
-    @TableId(value = "sold_id", type = IdType.ASSIGN_ID)
-    private Integer soldId;
+    @TableId(value = "sell_id", type = IdType.ASSIGN_ID)
+    private Integer sellId;
 
     /**
      * 顾客id
@@ -45,8 +45,8 @@ public class Sold implements Serializable {
     /**
      * 售出数量
      */
-    @TableField("sold_number")
-    private Integer soldNumber;
+    @TableField("sell_number")
+    private Integer sellNumber;
 
     /**
      * 售出时间

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025-05-28 20:16
  */
 @RestController
-@RequestMapping("/api/sold")
-public class SoldController {
+@RequestMapping("/api/sell")
+public class SellController {
 
 }
