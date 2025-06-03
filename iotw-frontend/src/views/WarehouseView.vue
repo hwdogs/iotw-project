@@ -356,6 +356,21 @@ onMounted(() => {
                 text
                 bg
                 @click="handleEdit(row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+                type="danger"
+                size="default"
+                text
+                bg
+                @click="handleDelete(row.goodId)"
+            >
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+
       </el-table>
     </div>
 
