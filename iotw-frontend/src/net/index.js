@@ -32,25 +32,25 @@ function deleteAccessToken() {
 
 function accessHeader() {
     const token = takeAccessToken();
-    return token ? {Authorization: `Bearer ${takeAccessToken()}`} : {}
+    return token ? { Authorization: `Bearer ${takeAccessToken()}` } : {}
 }
 
 function storeAccessToken(token, remember, expire) {
-    const authObj = {token: token, expire: expire}
+    const authObj = { token: token, expire: expire }
     const str = JSON.stringify(authObj)
-    if(remember) {
+    if (remember) {
         localStorage.setItem(authItemName, str)
-    }else {
+    } else {
         sessionStorage.setItem(authItemName, str)
     }
 }
 
 function internalPost(url, data, header, success, failure, error = defaultError) {
-    axios.post(url, data, {headers: header})
-        .then(({data}) => {
+    axios.post(url, data, { headers: header })
+        .then(({ data }) => {
             if (data.code === 200) {
                 success(data.data)
-            }else {
+            } else {
                 failure(data.msg || data.message, data.code, url)
             }
         }).catch(err => {
@@ -66,10 +66,10 @@ function internalPost(url, data, header, success, failure, error = defaultError)
 }
 
 function internalGet(url, header, success, failure, error = defaultError) {
-    axios.get(url, {headers: header}).then(({data}) => {
+    axios.get(url, { headers: header }).then(({ data }) => {
         if (data.code === 200) {
             success(data.data)
-        }else {
+        } else {
             failure(data.msg || data.message)
         }
     }).catch(err => error(err))
@@ -85,11 +85,11 @@ function post(url, data, success, failure = defaultError) {
 
 function login(username, password, remember, success, failure = defaultFailure) {
     internalPost('/api/auth/login', {
-        username : username,
+        username: username,
         password: password,
-    },{
+    }, {
         'Content-Type': 'application/x-www-form-urlencoded'
-    },(data) => {
+    }, (data) => {
         storeAccessToken(data.token, remember, data.expire)
         ElMessage.success(`登陆成功, 欢迎${data.username}莅临我们的系统`)
         success(data)
