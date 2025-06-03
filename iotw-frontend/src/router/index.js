@@ -25,10 +25,11 @@ const router = createRouter({
                     component: () => import('@/views/welcome/ResetPage.vue')
                 }
             ]
-        }, {
+        },
+        {
             path: '/index',
             name: 'index',
-            redirect: {name: 'home'},
+            redirect: { name: 'home' },
             component: () => import('@/views/IndexView.vue'),
             children: [
                 {
@@ -40,6 +41,16 @@ const router = createRouter({
                     path: 'good',
                     name: 'good',
                     component: () => import('@/views/GoodView.vue')
+                },
+                {
+                    path: 'supply',
+                    name: 'supply',
+                    component: () => import('@/views/SupplyView.vue')
+                },
+                {
+                    path: 'sell',
+                    name: 'sell',
+                    component: () => import('@/views/SellView.vue')
                 },
                 {
                     path: 'goods/:goodId/good-add-edit',
@@ -63,14 +74,24 @@ const router = createRouter({
                     component: () => import('@/views/AccountView.vue')
                 },
                 {
-                    path: 'page1',
-                    name: 'page1',
-                    component: () => import('@/views/Page1View.vue')
+                    path: 'supplier',
+                    name: 'supplier',
+                    component: () => import('@/views/SupplierView.vue')
                 },
                 {
-                    path: 'page2',
-                    name: 'page2',
-                    component: () => import('@/views/Page2View.vue')
+                    path: 'customer',
+                    name: 'customer',
+                    component: () => import('@/views/CustomerView.vue')
+                },
+                {
+                    path: 'category',
+                    name: 'category',
+                    component: () => import('@/views/CategoryView.vue')
+                },
+                {
+                    path: 'categoryManage',
+                    name: 'categoryManage',
+                    component: () => import('@/views/CategoryManageView.vue')
                 },
                 {
                     path: 'roles/:roleId/alloc-menus',
