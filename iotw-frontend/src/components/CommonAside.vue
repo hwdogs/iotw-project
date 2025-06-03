@@ -2,14 +2,21 @@
 import {ref, computed} from 'vue';
 import {useRouter, useRoute} from 'vue-router';
 import {useAllDataStore} from '@/stores'
-import {Options} from "element-plus";
+import {markRaw} from 'vue'
+import type {Component} from 'vue'
 import {
   House,
   Box,
   User,
   More,
-  Setting,
+  Avatar,
+  UserFilled,
+  School,
+  ShoppingTrolley,
+  Sell,
   HomeFilled,
+  Management,
+  Files,
 } from '@element-plus/icons-vue'
 
 // 类型定义
@@ -17,7 +24,7 @@ interface MenuItem {
   path: string;
   name: string;
   label: string;
-  icon: Options;
+  icon: Component;
   url?: string;
   children?: MenuItem[];
 }
@@ -30,29 +37,51 @@ const list = ref<MenuItem[]>([
     path: '/index/home',
     name: 'home',
     label: '首页',
-    icon: House,
+    icon: markRaw(House),
     url: 'Home',
   },
   {
-    path: '/index/good',
-    name: 'good',
+    path: '/index/goods',
+    name: 'goods',
     label: '商品管理',
-    icon: Box,
-    url: 'Good',
+    icon: markRaw(Box),
+    children: [
+      {
+        path: '/index/good',
+        name: 'good',
+        label: '商品列表',
+        icon: markRaw(Box),
+        url: 'Good',
+      },
+      {
+        path: '/index/supply',
+        name: 'supply',
+        label: '供应管理',
+        icon: markRaw(Sell),
+        url: 'Supply',
+      },
+      {
+        path: '/index/sell',
+        name: 'sell',
+        label: '销售管理',
+        icon: markRaw(ShoppingTrolley),
+        url: 'Sell',
+      }
+    ]
   },
   {
-    path: '/index/user',
-    name: 'user',
-    label: '账号管理',
-    icon: User,
-    url: 'User',
-  },
-  {
-    path: '/index/warehouse',
-    name: 'warehouse',
+    path: '/index/warehouses',
+    name: 'warehouses',
     label: '仓库管理',
-    icon: HomeFilled,
-    url: 'warehoues'
+    icon: markRaw(School),
+    children: [
+      {
+        path: '/index/warehouse',
+        name: 'warehouse',
+        label: '仓库列表',
+        icon: markRaw(School),
+        url: 'Warehouse',
+      },
       {
         path: '/index/manage',
         name: 'manage',
@@ -60,27 +89,57 @@ const list = ref<MenuItem[]>([
         icon: markRaw(HomeFilled),
         url: 'Manage',
       }
+    ]
+  },
+  {
+    path: '/index/user',
+    name: 'user',
+    label: '人员管理',
+    icon: markRaw(User),
+    children: [
+      {
+        path: '/index/insider',
+        name: 'insider',
+        label: '内部人员',
+        icon: markRaw(Avatar),
+        url: 'Insider',
+      },
+      {
+        path: '/index/supplier',
+        name: 'supplier',
+        label: '供应商',
+        icon: markRaw(UserFilled),
+        url: 'Supplier',
+      },
+      {
+        path: '/index/customer',
+        name: 'customer',
+        label: '顾客人员',
+        icon: markRaw(User),
+        url: 'Customer'
+      },
+    ]
   },
   {
     path: '/index/other',
     name: 'other',
     label: '其他',
-    icon: More,
+    icon: markRaw(More),
     children: [
       {
-        path: '/index/page1',
-        name: 'page1',
-        label: '页面1',
-        icon: Setting,
-        url: 'Page1',
+        path: '/index/category',
+        name: 'category',
+        label: '类别列表',
+        icon: markRaw(Files),
+        url: 'Category',
       },
       {
-        path: '/index/page2',
-        name: 'page2',
-        label: '页面2',
-        icon: Setting,
-        url: 'Page2',
-      },
+        path: '/index/categoryManage',
+        name: 'categoryManage',
+        label: '类别管理',
+        icon: markRaw(Management),
+        url: 'CategoryManage',
+      }
     ]
   }
 ])
