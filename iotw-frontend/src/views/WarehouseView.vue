@@ -132,7 +132,12 @@ const resetQuery = (formEl: FormInstance | undefined) => {
 }
 
 const handleAdd = () => {
-    //添加仓库
+  router.push({
+    name: 'manage',
+    query: { type: 'add' }
+  })
+}
+
 const handleEdit = (warehouse: Warehouse) => {
   router.push({
     name: 'manage',
@@ -143,6 +148,46 @@ const handleEdit = (warehouse: Warehouse) => {
   })
 }
 
+const handleDelete = (id: number) => {
+  ElMessageBox.confirm('确定要删除这个仓库吗？此操作不可撤销。', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    get(`/api/warehouse/delete?id=${id}`, () => {
+      ElMessage.success('仓库删除成功')
+      getWarehouseData()
+    }, (message) => {
+      ElMessage.error('删除失败: ' + message)
+    })
+  }).catch(() => {
+    // 用户取消操作
+  })
+}
+
+// 提交仓库表单（添加/编辑）
+const submitWarehouseForm = ()=>{
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      const apiUrl = 'add'
+        ? `/api/warehouse/add` :
+          `/api/warehouse/update`
+
+      const formData = 'add'
+        ? {...warehouseForm} :
+          {
+            warehouseId: warehouseForm.warehouseId,
+            ...warehouseForm
+          }
+
+      post(apiUrl, formData, () => {
+        ElMessage.success('操作成功')
+        getWarehouseData()
+      }, (message) => {
+        ElMessage.error('操作失败: ' + message)
+      })
+    }
+  })
 }
 
 onMounted(() => {
@@ -256,9 +301,9 @@ onMounted(() => {
       </el-form-item>
 
       <!-- 操作按钮 -->
-    <div class="action-buttons">
-      <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增仓库</el-button>
-    </div>
+      <div class="action-buttons">
+        <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增仓库</el-button>
+      </div>
     </el-form>
 
     <div class="table-container">
@@ -276,7 +321,33 @@ onMounted(() => {
             :label="col.label"
             :width="col.width"
             :show-overflow-tooltip="col.showOverflowTooltip ?? false"
-        />
+        >
+
+          <template #default="scope" v-if="col.prop === 'accountIds'">
+            <div class="account-tags">
+              <template v-if="scope.row.accountIds && scope.row.accountIds.length">
+                <el-tag
+                    v-for="(id, index) in scope.row.accountIds"
+                    :key="index"
+                    class="account-tag"
+                    size="small"
+                >
+                  #{{ id }}
+                </el-tag>
+              </template>
+              <span v-else class="empty-message">无管理者</span>
+            </div>
+          </template>
+
+          <template #default="scope" v-else-if="col.prop === 'description'">
+            <div class="description-cell">
+              {{ scope.row.description || '无描述' }}
+            </div>
+          </template>
+
+        </el-table-column>
+        >
+
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button
