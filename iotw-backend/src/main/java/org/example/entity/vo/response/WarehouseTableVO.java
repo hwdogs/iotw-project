@@ -22,5 +22,6 @@ public class WarehouseTableVO {
     private List<Integer> accountIds;  //从manage表获取
     private Integer area;
     private String description;
+    private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

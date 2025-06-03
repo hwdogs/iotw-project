@@ -1,21 +1,27 @@
 package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import org.example.entity.dto.Account;
 import org.example.entity.dto.Manage;
 import org.example.entity.dto.Warehouse;
+import org.example.entity.vo.request.WarehouseAddVO;
 import org.example.entity.vo.request.WarehouseQueryVO;
+import org.example.entity.vo.request.WarehouseUpdateVO;
 import org.example.entity.vo.response.WarehouseTableVO;
+import org.example.mapper.AccountMapper;
 import org.example.mapper.ManageMapper;
 import org.example.mapper.WarehouseMapper;
 import org.example.service.WarehouseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +44,9 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
     @Resource
     private ManageMapper manageMapper;
 
+    @Resource
+    private AccountMapper accountMapper;
+
     /**
      * 多条件分页查询仓库，支持联合manage表查询
      *
@@ -58,10 +67,14 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         // 使用LambdaQueryWrapper确保类型安全，避免字段名硬编码
         LambdaQueryWrapper<Warehouse> wrapper = new LambdaQueryWrapper<>();
         // 指定查询字段（避免SELECT * 性能问题）
-        wrapper.select(Warehouse::getWarehouseId, Warehouse::getWarehouseName,
-                Warehouse::getArea, Warehouse::getDescription, Warehouse::getUpdateTime);
+        wrapper.select(Warehouse::getWarehouseId, Warehouse::getWarehouseName, Warehouse::getArea,
+                Warehouse::getDescription, Warehouse::getCreateTime, Warehouse::getUpdateTime);
 
         // 3. 动态条件组装
+        // 仓库id模糊查询
+        if(vo.getWarehouseId()!=null){
+            wrapper.like(Warehouse::getWarehouseId, vo.getWarehouseId());
+        }
         // 仓库名称模糊查询
         if (StringUtils.isNotBlank(vo.getWarehouseName())) {
             wrapper.like(Warehouse::getWarehouseName, vo.getWarehouseName());
@@ -69,6 +82,10 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         // 面积范围查询
         if (vo.getStartArea() != null && vo.getEndArea() != null) {
             wrapper.between(Warehouse::getArea, vo.getStartArea(), vo.getEndArea());
+        }
+        //创立时间范围查询
+        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() != null) {
+            wrapper.between(Warehouse::getCreateTime, vo.getStartCreateTime(), vo.getEndCreateTime());
         }
         // 更新时间范围查询
         if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() != null) {
@@ -97,6 +114,7 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
                     null,  // accountIds单独设置
                     entity.getArea(),
                     entity.getDescription(),
+                    entity.getCreateTime(),
                     entity.getUpdateTime()
             );
             // 设置关联账户ID列表
@@ -282,6 +300,7 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
     private SFunction<Warehouse, ?> getSortLambda(String sortField) {
         return switch (sortField) {
             case "area" -> Warehouse::getArea;
+            case "create_time" -> Warehouse::getCreateTime;
             case "update_time" -> Warehouse::getUpdateTime;
             default -> Warehouse::getWarehouseId;
         };

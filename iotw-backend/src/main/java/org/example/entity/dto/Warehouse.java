@@ -51,6 +51,12 @@ public class Warehouse implements Serializable, BaseData {
     private String description;
 
     /**
+     * 仓库创立时间
+     */
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    /**
      * 仓库更新时间
      */
     @TableField("update_time")

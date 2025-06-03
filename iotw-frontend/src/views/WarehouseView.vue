@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {ref, onMounted, reactive} from 'vue'
-import {post} from '@/net'
-import {ElMessage} from "element-plus";
+import {post, get} from '@/net'
+import {ElMessage, ElMessageBox} from "element-plus";
 import type {FormInstance} from 'element-plus'
 import {Search, RefreshLeft, Plus} from '@element-plus/icons-vue'
+import router from '@/router'
 
 //类型定义
 interface Warehouse {
@@ -11,7 +12,9 @@ interface Warehouse {
   warehouseName: string
   area: number
   description: string
+  createTime: string
   updateTime: string
+  accountIds: number[]
 }
 
 // 添加列配置类型
@@ -26,18 +29,22 @@ interface TableColumnConfig {
 const tableData = ref<Warehouse[]>([])
 const loading = ref<boolean>(false);
 const totalSearch = ref(0);
+const formRef = ref<FormInstance>();
 
 const tableLabel = reactive<TableColumnConfig[]>([
-  {prop: 'warehouseId', label:'仓库ID'},
+  {prop: 'warehouseId', label: '仓库ID'},
   {prop: 'warehouseName', label: '仓库名称'},
+  {prop: 'accountIds', label: '仓库管理者'},
   {prop: 'area', label: '面积(平方米)'},
   {prop: 'description', label: '描述', showOverflowTooltip: true},
-  {prop: 'updateTime', label: '更新时间'}
+  {prop: 'createTime', label: '创建时间', showOverflowTooltip: true},
+  {prop: 'updateTime', label: '更新时间', showOverflowTooltip: true}
 ])
 
 const SORT_OPTIONS = [
-  {value: 'warehouseId',label:'默认ID排序'},
+  {value: 'warehouseId', label: '默认ID排序'},
   {value: 'area', label: '面积'},
+  {value: 'createTime', label: '创建时间'},
   {value: 'updateTime', label: '更新时间'}
 ]
 
@@ -47,6 +54,8 @@ const conditionForm = reactive({
   warehouseName: '',
   startArea: null as number | null,
   endArea: null as number | null,
+  startCreateTime: '',
+  endCreateTime: '',
   startUpdateTime: '',
   endUpdateTime: '',
   sortField: 'warehouseId',
@@ -68,6 +77,8 @@ const getWarehouseData = () => {
       warehouseName?: string;
       startArea?: number;
       endArea?: number;
+      startCreateTime?: string;
+      endCreateTime?: string;
       startUpdateTime?: string;
       endUpdateTime?: string;
     } = {
@@ -86,6 +97,12 @@ const getWarehouseData = () => {
     }
     if (conditionForm.endArea !== null) {
       filteredData.endArea = conditionForm.endArea
+    }
+    if (conditionForm.startCreateTime) {
+      filteredData.startCreateTime = conditionForm.startCreateTime
+    }
+    if (conditionForm.endCreateTime) {
+      filteredData.endCreateTime = conditionForm.endCreateTime
     }
     if (conditionForm.startUpdateTime) {
       filteredData.startUpdateTime = conditionForm.startUpdateTime
@@ -428,6 +445,26 @@ onMounted(() => {
       height: 40px;
     }
   }
+}
+
+.account-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-tag {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.empty-message {
+  color: var(--el-text-color-secondary);
+  font-style: italic;
+  font-size: 14px;
 }
 
 :deep(.el-table) {

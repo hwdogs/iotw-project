@@ -20,9 +20,12 @@ public class WarehouseQueryVO {
     private Integer pageSize = 10;
 
     // 查询条件
+    private String warehouseId;     //仓库id模糊查询
     private String warehouseName;   //仓库名称模糊查询
     private Integer startArea;       //仓库占地范围查询
     private Integer endArea;
+    private String startCreateTime; //创立时间范围查询
+    private String endCreateTime;
     private String startUpdateTime; //更新时间范围查询
     private String endUpdateTime;
 
