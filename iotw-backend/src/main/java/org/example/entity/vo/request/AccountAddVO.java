@@ -2,7 +2,7 @@ package org.example.entity.vo.request;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.example.entity.Verifiable;
+import org.example.entity.UserVerifiable;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccountAddVO extends AccountEmailRegisterVO implements Verifiable {
+public class AccountAddVO extends AccountEmailRegisterVO implements UserVerifiable {
     @TableField("role")
     @JsonProperty("role")
     private Short role;
