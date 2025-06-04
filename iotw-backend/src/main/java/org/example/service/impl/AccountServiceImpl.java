@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import org.example.entity.Verifiable;
+import org.example.entity.UserVerifiable;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountIdUsernameVO;
@@ -346,7 +346,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .collect(Collectors.toList());
     }
 
-    private <T extends Verifiable> String verifyRegistration(T vo) {
+    private <T extends UserVerifiable> String verifyRegistration(T vo) {
         String email = vo.getEmail();
         String username = vo.getUsername();
         String key = Const.VERIFY_EMAIL_DATA + email;
