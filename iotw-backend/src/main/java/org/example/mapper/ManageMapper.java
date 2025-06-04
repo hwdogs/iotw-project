@@ -19,7 +19,6 @@ public interface ManageMapper extends BaseMapper<Manage> {
 
     List<Manage> selectByWarehouseIds(@Param("warehouseIds") List<Integer> warehouseIds);
 
-    @Select("SELECT account_id FROM t_manage WHERE warehouse_id = #{warehouseId} AND deleted = 0")
     List<Integer> selectAccountIdsByWarehouseId(@Param("warehouseId") Integer warehouseId);
 }
 
