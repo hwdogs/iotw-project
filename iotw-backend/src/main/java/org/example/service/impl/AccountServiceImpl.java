@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.example.entity.UserEntityContext;
 import org.example.entity.UserVerifiable;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
@@ -16,6 +17,7 @@ import org.example.mapper.AccountMapper;
 import org.example.service.AccountService;
 import org.example.utils.Const;
 import org.example.utils.FlowUtils;
+import org.example.utils.UserEntityUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -160,33 +162,33 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     @Override
     public String registerEmailAccount(AccountEmailRegisterVO vo) {
-        String message = verifyRegistration(vo);
-        if (message != null) {
-            return message;
-        }
+        return UserEntityUtils.addUserEntity(
+                vo,
+                Account.class,
+                new UserEntityContext<Account>() {
 
-        String username = vo.getUsername();
-        String email = vo.getEmail();
-        String password = passwordEncoder.encode(vo.getPassword());
-        Account account = new Account(null,
-                username,
-                password,
-                email,
-                Const.RULE_USER,
-                LocalDateTime.now(),
-                null,
-                null,
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                Const.IS_NOT_DELETED
+                    @Override
+                    public boolean saveUser(Account entity) {
+                        return accountMapper.insert(entity) > 0;
+                    }
+
+                    @Override
+                    public boolean existsUserEmail(String email) {
+                        return existsAccountEmail(email);
+                    }
+
+                    @Override
+                    public boolean existsUsername(String username) {
+                        return existsAccountUsername(username);
+                    }
+                },
+                stringRedisTemplate,
+                passwordEncoder,
+                account -> {
+                    account.setPassword(passwordEncoder.encode(vo.getPassword()));
+                    account.setRole(Const.RULE_USER);
+                }
         );
-        if (this.save(account)) {
-            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + vo.getEmail());
-            return null;
-        } else {
-            return "内部错误，请联系管理员";
-        }
     }
 
     /**

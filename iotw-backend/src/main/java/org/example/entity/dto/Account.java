@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.entity.BaseData;
+import org.example.entity.BaseUserEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 @TableName("t_account")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account implements BaseData {
+public class Account extends BaseUserEntity implements BaseData {
     @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
 
