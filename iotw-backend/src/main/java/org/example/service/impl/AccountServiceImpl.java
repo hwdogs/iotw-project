@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.UserEntityContext;
-import org.example.entity.UserVerifiable;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountIdUsernameVO;
@@ -321,9 +320,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 },
                 stringRedisTemplate,
                 passwordEncoder,
-                account -> {
-                    account.setPassword(passwordEncoder.encode(vo.getPassword()));
-                }
+                account -> account.setPassword(passwordEncoder.encode(vo.getPassword()))
         );
     }
 
@@ -348,26 +345,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                     return vo;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private <T extends UserVerifiable> String verifyRegistration(T vo) {
-        String email = vo.getEmail();
-        String username = vo.getUsername();
-        String key = Const.VERIFY_EMAIL_DATA + email;
-        String code = stringRedisTemplate.opsForValue().get(key);
-        if (code == null) {
-            return "请先获取验证码";
-        }
-        if (!code.equals(vo.getCode())) {
-            return "验证码输入错误，请重新输入";
-        }
-        if (this.existsAccountEmail(email)) {
-            return "此邮箱已被其他用户注册";
-        }
-        if (this.existsAccountUsername(username)) {
-            return "此用户名已被其他用户注册，请更新一个新的用户名";
-        }
-        return null;
     }
 
     private SFunction<Account, ?> getSortLambda(String field) {
