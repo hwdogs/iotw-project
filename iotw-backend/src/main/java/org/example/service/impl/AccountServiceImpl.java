@@ -214,6 +214,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .eq(Account::getDeleted, Const.IS_NOT_DELETED);
 
         //3. 条件组合
+        if (vo.getId() != null) {
+            wrapper.likeRight(Account::getId, vo.getId());
+        }
         if (StringUtils.isNotBlank(vo.getUsername())) {
             wrapper.like(Account::getUsername, vo.getUsername());
         }
@@ -322,6 +325,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     /**
      * 获取account表中所有账户的id和username
+     *
      * @return 列表结果
      */
     @Override

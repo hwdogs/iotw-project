@@ -22,6 +22,7 @@ public class AccountQueryVO {
     private Integer pageSize = 10;
 
     // 查询条件
+    private Integer id;       // 模糊查询账户id
     private String username;  // 模糊查询用户名
     private Integer role;      // 精确匹配角色
     private Integer sex;       // 性别筛选
