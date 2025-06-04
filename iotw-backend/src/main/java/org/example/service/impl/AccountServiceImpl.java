@@ -299,30 +299,32 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public String addOneAccount(AccountAddVO vo) {
+        return UserEntityUtils.addUserEntity(
+                vo,
+                Account.class,
+                new UserEntityContext<Account>() {
 
-        String message = verifyRegistration(vo);
-        if (message != null) {
-            return message;
-        }
+                    @Override
+                    public boolean saveUser(Account entity) {
+                        return accountMapper.insert(entity) > 0;
+                    }
 
-        // 创建Account对象并设置所有字段
-        Account account = new Account();
-        account.setUsername(vo.getUsername());
-        account.setPassword(passwordEncoder.encode(vo.getPassword()));
-        account.setEmail(vo.getEmail());
-        account.setRole(vo.getRole());
-        account.setBirth(vo.getBirth());
-        account.setAddress(vo.getAddress());
-        account.setSex(vo.getSex());
-        account.setRegisterTime(LocalDateTime.now());
-        account.setUpdateTime(LocalDateTime.now());
+                    @Override
+                    public boolean existsUserEmail(String email) {
+                        return existsAccountEmail(email);
+                    }
 
-        if (this.save(account)) {
-            stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + vo.getEmail());
-            return null;
-        } else {
-            return "内部错误，请联系管理员";
-        }
+                    @Override
+                    public boolean existsUsername(String username) {
+                        return existsUserEmail(username);
+                    }
+                },
+                stringRedisTemplate,
+                passwordEncoder,
+                account -> {
+                    account.setPassword(passwordEncoder.encode(vo.getPassword()));
+                }
+        );
     }
 
     /**
