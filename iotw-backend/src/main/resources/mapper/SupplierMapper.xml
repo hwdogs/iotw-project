@@ -5,21 +5,21 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="org.example.entity.dto.Supplier">
         <id column="supplier_id" property="supplierId" />
-        <result column="supplier_name" property="supplierName" />
-        <result column="supplier_password" property="supplierPassword" />
+        <result column="supplier_name" property="username" />
+        <result column="supplier_password" property="password" />
         <result column="email" property="email" />
         <result column="phone" property="phone" />
         <result column="address" property="address" />
         <result column="birth" property="birth" />
         <result column="sex" property="sex" />
-        <result column="create_time" property="createTime" />
+        <result column="create_time" property="registerTime" />
         <result column="update_time" property="updateTime" />
         <result column="deleted" property="deleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        supplier_id, supplier_name, supplier_password, email, phone, address, birth, sex, create_time, update_time, deleted
+        supplier_id, username, password, email, phone, address, birth, sex, create_time, register_time, deleted
     </sql>
 
 </mapper>

@@ -2,6 +2,7 @@ package org.example.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.*;
+import org.example.entity.BaseUserEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,11 +17,12 @@ import java.time.LocalDateTime;
  * @author hwshou
  * @since 2025-05-28 20:16
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_supplier")
-public class Supplier implements Serializable {
+public class Supplier extends BaseUserEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -34,14 +36,14 @@ public class Supplier implements Serializable {
     /**
      * 供应商名称
      */
-    @TableField("supplier_name")
-    private String supplierName;
+    @TableField("username")
+    private String username;
 
     /**
      * 供应商密码
      */
-    @TableField("supplier_password")
-    private String supplierPassword;
+    @TableField("password")
+    private String password;
 
     /**
      * 供应商邮箱
@@ -76,8 +78,8 @@ public class Supplier implements Serializable {
     /**
      * 供应商注册时间
      */
-    @TableField("create_time")
-    private LocalDateTime createTime;
+    @TableField("register_time")
+    private LocalDateTime registerTime;
 
     /**
      * 供应商更新时间

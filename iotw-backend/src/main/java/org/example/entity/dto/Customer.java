@@ -34,14 +34,14 @@ public class Customer implements Serializable {
     /**
      * 顾客名称
      */
-    @TableField("customer_name")
-    private String customerName;
+    @TableField("username")
+    private String username;
 
     /**
      * 顾客密码
      */
-    @TableField("customer_password")
-    private String customerPassword;
+    @TableField("password")
+    private String password;
 
     /**
      * 顾客邮箱
@@ -76,8 +76,8 @@ public class Customer implements Serializable {
     /**
      * 顾客注册时间
      */
-    @TableField("create_time")
-    private LocalDateTime createTime;
+    @TableField("register_time")
+    private LocalDateTime registerTime;
 
     /**
      * 顾客更新时间
