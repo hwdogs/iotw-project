@@ -3,7 +3,7 @@ package org.example.entity.vo.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-import org.example.entity.Verifiable;
+import org.example.entity.UserVerifiable;
 import org.hibernate.validator.constraints.Length;
 
 /**
@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
  * @date 2025/5/25  00:05
  */
 @Data
-public class AccountEmailRegisterVO implements Verifiable {
+public class AccountEmailRegisterVO implements UserVerifiable {
     @Email
     @Length(min = 4)
     String email;
