@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SupplierService extends IService<Supplier> {
 
+    String addOneSupplier(SupplierAddVO vo);
+
 }
