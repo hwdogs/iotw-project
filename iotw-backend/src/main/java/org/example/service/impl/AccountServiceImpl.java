@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.UserEntityContext;
+import org.example.entity.UserUpdateContext;
 import org.example.entity.dto.Account;
 import org.example.entity.vo.request.*;
 import org.example.entity.vo.response.AccountIdUsernameVO;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -270,30 +272,37 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @Transactional
     public String updateOneAccount(AccountUpdateVO vo) {
-        //1.参数校验
-        if (vo.getId() == null) {
-            return "id不能为空";
-        }
-        if (StringUtils.isNotBlank(vo.getEmail()) && this.existsAccountEmail(vo.getEmail())) {
-            return "此邮箱已被其他用户注册";
-        }
+        return UserEntityUtils.updateUserEntity(
+                vo,
+                Account.class,
+                new UserUpdateContext<Account>() {
+                    @Override
+                    public <V> Function<V, Integer> getIdGetter() {
+                        return v -> ((AccountUpdateVO) v).getId();
+                    }
 
-        //2.查询现有账户
-        Account account = accountMapper.selectById(vo.getId());
-        if (account == null) {
-            return "账户不存在";
-        }
+                    @Override
+                    public Account getUserById(Integer id) {
+                        return accountMapper.selectById(id);
+                    }
 
-        //3. 安全转换
-        Account updatedAccount = vo.asDTO(Account.class, target -> {
-            target.setUpdateTime(LocalDateTime.now());  //特殊字段处理
-        });
+                    @Override
+                    public boolean existsUserEmailExcludingId(String email, Integer excludeId) {
+                        return accountMapper.exists(Wrappers.<Account>query()
+                                .eq("email", email)
+                                .ne("id", excludeId)
+                                .eq("deleted", Const.IS_NOT_DELETED));
+                    }
 
-        //4.执行更新操作
-        int result = accountMapper.updateById(updatedAccount);
-        return result > 0 ? null : "数据未变化";
+                    @Override
+                    public boolean updateUser(Account entity) {
+                        return accountMapper.updateById(entity) > 0;
+                    }
+                },
+                AccountUpdateVO::getEmail,
+                null
+        );
     }
 
     @Override
