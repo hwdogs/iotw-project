@@ -1,11 +1,25 @@
 package org.example.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import org.example.entity.RestBean;
+import org.example.entity.vo.request.AccountEmailRegisterVO;
+import org.example.entity.vo.request.SupplierAddVO;
+import org.example.entity.vo.request.SupplierQueryVO;
+import org.example.entity.vo.request.SupplierUpdateVO;
+import org.example.entity.vo.response.SupplierTableVO;
+import org.example.service.AccountService;
+import org.example.service.SupplierService;
+import org.example.utils.ResponseUtils;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
- *  前端控制器
+ * supplier前端控制器
  * </p>
  *
  * @author hwshou

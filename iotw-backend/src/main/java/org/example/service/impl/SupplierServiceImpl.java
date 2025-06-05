@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import org.example.entity.UserEntityContext;
+import org.example.entity.UserUpdateContext;
 import org.example.entity.dto.Supplier;
 import org.example.entity.vo.request.AccountEmailRegisterVO;
 import org.example.entity.vo.request.SupplierAddVO;
 import org.example.entity.vo.request.SupplierQueryVO;
+import org.example.entity.vo.request.SupplierUpdateVO;
 import org.example.entity.vo.response.SupplierTableVO;
 import org.example.mapper.SupplierMapper;
 import org.example.service.SupplierService;
@@ -109,6 +113,29 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 entity.getRegisterTime(),
                 entity.getUpdateTime()
         ));
+    }
+
+    /**
+     * 逻辑删除供应商
+     *
+     * @param id 需要删除供应商的id
+     * @return 是否删除成功
+     */
+    @Override
+    public String logicDeleteOneSupplier(Integer id) {
+        return removeById(id) ? null : "删除失败";
+    }
+
+    /**
+     * 注册一名供应商
+     *
+     * @param vo 供应商信息
+     * @return 是否注册成功
+     */
+    @Override
+    public String registerOneSupplier(AccountEmailRegisterVO vo) {
+        return registerOrAddOneSupplier(vo);
+
     }
 
     /**
