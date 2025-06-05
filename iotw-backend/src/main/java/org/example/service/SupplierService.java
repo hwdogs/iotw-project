@@ -13,6 +13,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SupplierService extends IService<Supplier> {
 
+    String registerOneSupplier(AccountEmailRegisterVO vo);
+
     String addOneSupplier(SupplierAddVO vo);
 
+    String updateOneSupplier(SupplierUpdateVO vo);
 }
