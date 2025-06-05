@@ -1,14 +1,13 @@
 package org.example.utils;
 
-import org.example.entity.BaseUserEntity;
-import org.example.entity.UserEntityContext;
-import org.example.entity.UserVerifiable;
+import org.example.entity.*;
 import org.example.entity.exception.UserOperationException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * 用户类实体操作工具
@@ -90,4 +89,58 @@ public class UserEntityUtils {
         if (context.existsUsername(username)) return "用户名已被占用";
         return null;
     }
+
+    /**
+     * 通用更新用户实体方法
+     *
+     * @param updateVO        更新VO对象
+     * @param entityClass     实体类类型
+     * @param context         用户更新上下文
+     * @param emailGetter     从VO中获取邮箱的函数
+     * @param customConverter 自定义转换逻辑（VO转实体）
+     * @return 错误消息或null（成功）
+     */
+    public static <V extends DTOConverter, E extends BaseUserEntity> String updateUserEntity(
+            V updateVO,
+            Class<E> entityClass,
+            UserUpdateContext<E> context,
+            Function<V, String> emailGetter,
+            Consumer<E> customConverter){
+
+        // 1. 参数校验
+        Integer id = context.getIdGetter().apply(updateVO);
+        if (id == null) {
+            return "id不能为空";
+        }
+        // 2. 查询现有实体
+        E existingEntity = context.getUserById(id);
+        if (existingEntity == null) {
+            return "账户不存在";
+        }
+
+        // 3. 检查邮箱冲突（排除自身）
+        String newEmail = emailGetter.apply(updateVO);
+        if (newEmail != null && !newEmail.equals(existingEntity.getEmail())) {
+            if (context.existsUserEmailExcludingId(newEmail, id)) {
+                return "此邮箱已被其他用户注册";
+            }
+        }
+
+        try {
+            // 4. 安全转换VO到实体
+            E updatedEntity = updateVO.asDTO(entityClass, entity -> {
+                // 应用自定义转换逻辑
+                if (customConverter != null) customConverter.accept(entity);
+                // 设置更新时间
+                entity.setUpdateTime(LocalDateTime.now());
+            });
+
+            // 5. 执行更新
+            return context.updateUser(updatedEntity) ? null : "更新失败";
+        } catch (Exception e) {
+            throw new UserOperationException("实体转换失败", e);
+        }
+
+    }
+
 }

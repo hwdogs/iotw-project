@@ -14,4 +14,5 @@ import java.time.LocalDateTime;
 public class BaseUserEntity {
     private LocalDateTime registerTime;
     private LocalDateTime updateTime;
+    private String email;
 }
