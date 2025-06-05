@@ -18,7 +18,13 @@ import org.example.entity.vo.response.SupplierTableVO;
 import org.example.mapper.SupplierMapper;
 import org.example.service.SupplierService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.example.utils.Const;
+import org.example.utils.UserEntityUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.function.Function;
 
 /**
  * <p>
@@ -147,5 +153,98 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     @Override
     public String addOneSupplier(SupplierAddVO vo) {
         return registerOrAddOneSupplier(vo);
+    }
+
+    /**
+     * 更新供应商信息
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneSupplier(SupplierUpdateVO vo) {
+        return UserEntityUtils.updateUserEntity(
+                vo,
+                Supplier.class,
+                new UserUpdateContext<Supplier>() {
+                    @Override
+                    public <V> Function<V, Integer> getIdGetter() {
+                        return v -> ((SupplierUpdateVO) v).getSupplierId();
+                    }
+
+                    @Override
+                    public Supplier getUserById(Integer id) {
+                        return supplierMapper.selectById(id);
+                    }
+
+                    @Override
+                    public boolean existsUserEmailExcludingId(String email, Integer excludeId) {
+                        return supplierMapper.exists(Wrappers.<Supplier>query()
+                                .eq("email", email)
+                                .ne("supplier_id", excludeId)
+                                .eq("deleted", Const.IS_NOT_DELETED));
+                    }
+
+                    @Override
+                    public boolean updateUser(Supplier entity) {
+                        return supplierMapper.updateById(entity) > 0;
+                    }
+                },
+                SupplierUpdateVO::getEmail,
+                null
+        );
+    }
+
+    /**
+     * 注册或者添加一名供应商
+     *
+     * @param vo 注册或者添加供应商的信息
+     * @return 是否注册或者添加成功
+     */
+    private String registerOrAddOneSupplier(AccountEmailRegisterVO vo) {
+        return UserEntityUtils.addUserEntity(
+                vo, //实现UserVerifiable
+                Supplier.class, //继承BaseUserEntity
+                new UserEntityContext<Supplier>() {
+
+                    @Override
+                    public boolean saveUser(Supplier entity) {
+                        return supplierMapper.insert(entity) > 0;
+                    }
+
+                    @Override
+                    public boolean existsUserEmail(String email) {
+                        return existsAccountEmail(email);
+                    }
+
+                    @Override
+                    public boolean existsUsername(String username) {
+                        return existsAccountUsername(username);
+                    }
+                },
+                stringRedisTemplate,
+                passwordEncoder,
+                // 自定义逻辑：密码加密
+                supplier -> supplier.setPassword(passwordEncoder.encode(supplier.getPassword()))
+        );
+    }
+
+
+    private boolean existsAccountEmail(String email) {
+        return this.supplierMapper.exists(Wrappers.<Supplier>query().eq("email", email));
+    }
+
+    private boolean existsAccountUsername(String username) {
+        return this.supplierMapper.exists(Wrappers.<Supplier>query().eq("username", username));
+    }
+
+
+    private SFunction<Supplier, ?> getSortLambda(String sortField) {
+        return switch (sortField) {
+            case "supplier_id" -> Supplier::getSupplierId;
+            case "birth" -> Supplier::getBirth;
+            case "register_time" -> Supplier::getRegisterTime;
+            default -> Supplier::getUpdateTime;
+        };
     }
 }
