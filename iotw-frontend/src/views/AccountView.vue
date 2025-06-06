@@ -177,7 +177,7 @@ function askCode() {
 // 修改表单验证规则
 const rules = {
   username: [
-    {pattern: /^[a-zA-Z0-9\u4e00-\u9fa5_]+$/, message: '用户名只能包含字母、数字和中文', trigger: 'blur'},
+    {pattern: /^[a-zA-Z0-9\u4e00-\u9fa5_]+$/, message: '用户名只能包含字母、数字、中文和下划线', trigger: 'blur'},
     {min: 1, max: 10, message: '用户名长度在1-10个字符之间', trigger: 'blur'}
   ],
   password: [
