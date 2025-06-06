@@ -68,4 +68,14 @@ public class SupplyController {
         return responseUtils.messageHandle(vo, supplyService::updateOneSupply);
     }
 
+    /**
+     * 删除一条入库信息
+     *
+     * @param id 需要删除的入库id
+     * @return 是否删除成功
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneSupply(@RequestParam Integer id) {
+        return responseUtils.messageHandle(id, supplyService::logicDeleteOneSupply);
+    }
 }

@@ -23,4 +23,5 @@ public interface SupplyService extends IService<Supply> {
 
     String updateOneSupply(SupplyUpdateVO vo);
 
+    String logicDeleteOneSupply(Integer supplyId);
 }

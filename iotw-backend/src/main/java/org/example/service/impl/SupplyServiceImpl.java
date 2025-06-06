@@ -202,6 +202,29 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
         return this.updateById(supply) ? null : "数据未变化";
     }
 
+    /**
+     * 逻辑删除一条入库记录
+     *
+     * @param supplyId 入库记录id
+     * @return 是否删除成功
+     */
+    @Override
+    public String logicDeleteOneSupply(Integer supplyId) {
+        // 1.参数校验
+        if (supplyId == null) {
+            return "入库ID不能为空";
+        }
+
+        // 2.查询现有账户
+        LambdaQueryWrapper<Supply> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Supply::getSupplyId, supplyId);
+        if (this.count(queryWrapper) == 0) {
+            return "将要删除的入库记录不存在";
+        }
+
+        // 3.安全逻辑删除
+        return this.removeById(supplyId) ? null : "删除失败";
+    }
 
     private SFunction<Supply, ?> getSortLambda(String sortField) {
         return switch (sortField) {
