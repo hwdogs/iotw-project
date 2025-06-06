@@ -1,7 +1,11 @@
 package org.example.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.example.entity.BaseUserEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,11 +20,12 @@ import java.time.LocalDateTime;
  * @author hwshou
  * @since 2025-05-28 20:16
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_customer")
-public class Customer implements Serializable {
+public class Customer extends BaseUserEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
