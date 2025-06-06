@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerTableVO {
-    private Integer supplierId;
+    private Integer customerId;
     private String username;
     private String email;
     private String phone;

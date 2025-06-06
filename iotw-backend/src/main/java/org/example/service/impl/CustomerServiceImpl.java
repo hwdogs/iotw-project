@@ -68,7 +68,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                         Customer::getSex,
                         Customer::getBirth,
                         Customer::getRegisterTime,
-                        Customer::getUsername
+                        Customer::getUpdateTime
                 ),
                 // 条件构造器
                 (v, wrapper) -> UserEntityUtils.buildCommonConditions(
