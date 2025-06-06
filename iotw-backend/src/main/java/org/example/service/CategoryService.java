@@ -23,4 +23,5 @@ public interface CategoryService extends IService<Category> {
 
     String updateOneCategory(CategoryUpdateVO vo);
 
+    String logicDeleteOneCategory(Short categoryId);
 }

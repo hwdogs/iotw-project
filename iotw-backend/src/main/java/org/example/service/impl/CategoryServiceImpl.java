@@ -129,4 +129,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return this.updateById(category) ? null : "数据为变化";
     }
 
+    /**
+     * 逻辑删除一条类别记录
+     *
+     * @param categoryId 需要删除记录的id
+     * @return 是否删除成功
+     */
+    @Override
+    public String logicDeleteOneCategory(Short categoryId) {
+        if (categoryId == null) {
+            return "id不能为空";
+        }
+        return this.removeById(categoryId) ? null : "删除失败";
+    }
 }

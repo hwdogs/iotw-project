@@ -62,4 +62,14 @@ public class CategoryController {
         return responseUtils.messageHandle(vo, categoryService::updateOneCategory);
     }
 
+    /**
+     * 删除一条类别记录
+     *
+     * @param id 需要删除记录的id
+     * @return 是否删除成功
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneCategory(@RequestParam Short id) {
+        return responseUtils.messageHandle(id, categoryService::logicDeleteOneCategory);
+    }
 }
