@@ -22,11 +22,21 @@ public interface DTOConverter {
                 }
                 currentClass = currentClass.getSuperclass(); // 向上遍历父类
             }
-            postProcessor.accept(dto);
+
+            // 安全调用 postProcessor
+            if (postProcessor != null) {
+                postProcessor.accept(dto);
+            }
+
             return dto;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // 添加无参重载方法
+    default <D> D asDTO(Class<D> dtoClass) {
+        return asDTO(dtoClass, null); // 调用主方法，postProcessor=null
     }
 
     private <D> void copyField(Field voField, D dto, Class<D> dtoClass) {
