@@ -70,16 +70,16 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (vo.getSupplierId() != null) {
             wrapper.likeRight(Supplier::getSupplierId, vo.getSupplierId());
         }
-        if (vo.getUsername() != null && StringUtils.isNotBlank(vo.getUsername())) {
+        if (StringUtils.isNotBlank(vo.getUsername())) {
             wrapper.like(Supplier::getUsername, vo.getUsername());
         }
-        if (vo.getEmail() != null && StringUtils.isNotBlank(vo.getEmail())) {
+        if (StringUtils.isNotBlank(vo.getEmail())) {
             wrapper.eq(Supplier::getEmail, vo.getEmail());
         }
-        if (vo.getPhone() != null && StringUtils.isNotBlank(vo.getPhone())) {
+        if (StringUtils.isNotBlank(vo.getPhone())) {
             wrapper.likeRight(Supplier::getPhone, vo.getPhone());
         }
-        if (vo.getAddress() != null && StringUtils.isNotBlank(vo.getAddress())) {
+        if (StringUtils.isNotBlank(vo.getAddress())) {
             wrapper.like(Supplier::getAddress, vo.getAddress());
         }
         if (vo.getSex() != null) {
@@ -141,7 +141,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     @Override
     public String registerOneSupplier(AccountEmailRegisterVO vo) {
         return registerOrAddOneSupplier(vo);
-
     }
 
     /**
@@ -206,7 +205,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 vo, //实现UserVerifiable
                 Supplier.class, //继承BaseUserEntity
                 new UserEntityContext<Supplier>() {
-
                     @Override
                     public boolean saveUser(Supplier entity) {
                         return supplierMapper.insert(entity) > 0;
