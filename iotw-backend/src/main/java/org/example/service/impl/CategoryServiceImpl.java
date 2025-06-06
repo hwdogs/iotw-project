@@ -92,4 +92,41 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return this.save(category) ? null : "存入失败";
     }
 
+    /**
+     * 更新一条类别记录
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneCategory(CategoryUpdateVO vo) {
+        // 1.参数校验
+        if (vo.getCategoryId() == null) {
+            return "id不能为空";
+        }
+        if (StringUtils.isBlank(vo.getCategoryName())) {
+            return "传入的更新数据为空";
+        }
+
+        // 2.1 查询现有账户
+        LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Category::getCategoryId, vo.getCategoryId());
+        if (this.count(wrapper) == 0) {
+            return "更新的类别记录不存在";
+        }
+
+        // 2.2 检查是否与其他记录冲突（排除自身）
+        LambdaQueryWrapper<Category> conflictCheck = new LambdaQueryWrapper<>();
+        conflictCheck.eq(Category::getCategoryName, vo.getCategoryName())
+                .ne(Category::getCategoryId, vo.getCategoryId());
+        if (this.count(conflictCheck) > 0) {
+            return "该类别已存在，无法更新";
+        }
+
+        // 3. 安全转换，只处理需要特殊处理的字段
+        Category category = vo.asDTO(Category.class);
+
+        return this.updateById(category) ? null : "数据为变化";
+    }
+
 }

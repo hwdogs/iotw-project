@@ -21,4 +21,6 @@ public interface CategoryService extends IService<Category> {
 
     String addOneCategory(CategoryAddVO vo);
 
+    String updateOneCategory(CategoryUpdateVO vo);
+
 }

@@ -51,4 +51,15 @@ public class CategoryController {
         return responseUtils.messageHandle(vo, categoryService::addOneCategory);
     }
 
+    /**
+     * 更新一条类别记录
+     *
+     * @param vo 更新信息
+     * @return 是否更新成功
+     */
+    @PostMapping("/update")
+    public RestBean<Void> updateOneCategory(@RequestBody CategoryUpdateVO vo) {
+        return responseUtils.messageHandle(vo, categoryService::updateOneCategory);
+    }
+
 }
