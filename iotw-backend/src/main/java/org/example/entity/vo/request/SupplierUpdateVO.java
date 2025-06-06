@@ -19,7 +19,7 @@ import java.time.LocalDate;
 public class SupplierUpdateVO implements DTOConverter {
     private Integer supplierId;
 
-    @Pattern(regexp = "^[a-zA-Z0-9\\u4e00-\\u9fa5]+$")
+    @Pattern(regexp = "^[a-zA-Z0-9\\u4e00-\\u9fa5_]+$")
     @Length(min = 1, max = 10)
     private String username;
 
