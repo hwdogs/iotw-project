@@ -26,6 +26,9 @@ public class CategoryController {
     @Resource
     private CategoryService categoryService;
 
+    @Resource
+    private ResponseUtils responseUtils;
+
     /**
      * 请求类别信息列表
      *
@@ -35,6 +38,17 @@ public class CategoryController {
     @PostMapping("/query")
     public RestBean<IPage<CategoryTableVO>> queryCategoryTableByCondition(@RequestBody CategoryQueryVO vo) {
         return RestBean.success(categoryService.queryCategoryTableByCondition(vo));
+    }
+
+    /**
+     * 添加一条类别记录
+     *
+     * @param vo 类别信息
+     * @return 是否添加成功
+     */
+    @PostMapping("/add")
+    public RestBean<Void> addOneCategory(@RequestBody CategoryAddVO vo) {
+        return responseUtils.messageHandle(vo, categoryService::addOneCategory);
     }
 
 }

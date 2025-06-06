@@ -63,4 +63,33 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 entity.getCategoryName()
         ));
     }
+
+    /**
+     * 添加一个类别
+     *
+     * @param vo 添加信息
+     * @return 是否添加成功
+     */
+    @Override
+    public String addOneCategory(CategoryAddVO vo) {
+        if (vo.getCategoryId() == null) {
+            return "类别ID不能为空";
+        }
+        if (StringUtils.isBlank(vo.getCategoryName())) {
+            return "类别名称不能为空";
+        }
+
+        LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Category::getCategoryName, vo.getCategoryName())
+                .eq(Category::getCategoryId, vo.getCategoryId());
+
+        if (this.count(wrapper) > 0) {
+            return "该类别已存在，请勿重复添加";
+        }
+
+        Category category = vo.asDTO(Category.class);
+
+        return this.save(category) ? null : "存入失败";
+    }
+
 }

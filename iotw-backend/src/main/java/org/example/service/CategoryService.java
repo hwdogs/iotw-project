@@ -19,5 +19,6 @@ import org.example.entity.vo.response.CategoryTableVO;
 public interface CategoryService extends IService<Category> {
     IPage<CategoryTableVO> queryCategoryTableByCondition(CategoryQueryVO vo);
 
+    String addOneCategory(CategoryAddVO vo);
 
 }
