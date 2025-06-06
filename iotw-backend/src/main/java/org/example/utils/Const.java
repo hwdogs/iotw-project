@@ -22,4 +22,8 @@ public class Const {
     public static final Short IS_DELETED = 1;
     public static final Short SEX_MAN = 1;
     public static final Short SEX_WOMAN = 0;
+
+    public static final Short NOT_APPROVED = 0;
+    public static final Short APPROVED_SUCCESSFULLY = 1;
+    public static final Short APPROVED_UNSUCCESSFULLY = -1;
 }
