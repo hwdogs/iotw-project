@@ -1,11 +1,19 @@
 package org.example.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
+import org.example.entity.RestBean;
+import org.example.entity.vo.request.CategoryAddVO;
+import org.example.entity.vo.request.CategoryQueryVO;
+import org.example.entity.vo.request.CategoryUpdateVO;
+import org.example.entity.vo.response.CategoryTableVO;
+import org.example.service.CategoryService;
+import org.example.utils.ResponseUtils;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
- *  前端控制器
+ * category前端控制器
  * </p>
  *
  * @author hwshou
@@ -14,5 +22,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
+
+    @Resource
+    private CategoryService categoryService;
+
+    /**
+     * 请求类别信息列表
+     *
+     * @param vo 请求信息
+     * @return 响应对象vo类
+     */
+    @PostMapping("/query")
+    public RestBean<IPage<CategoryTableVO>> queryCategoryTableByCondition(@RequestBody CategoryQueryVO vo) {
+        return RestBean.success(categoryService.queryCategoryTableByCondition(vo));
+    }
 
 }
