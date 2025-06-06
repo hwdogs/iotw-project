@@ -415,7 +415,7 @@ onMounted(() => {
             :show-overflow-tooltip="col.showOverflowTooltip ?? false"
         />
 
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="155" fixed="right">
           <template #default="{ row }">
             <el-button
                 type="primary"
