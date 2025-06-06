@@ -20,5 +20,6 @@ import org.example.entity.vo.response.CustomerTableVO;
 public interface CustomerService extends IService<Customer> {
     IPage<CustomerTableVO> queryCustomerTableByCondition(CustomerQueryVO vo);
 
+    String logicDeleteOneCustomer(Integer id);
 
 }

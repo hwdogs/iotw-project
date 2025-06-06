@@ -43,4 +43,16 @@ public class CustomerController {
             @Valid @RequestBody CustomerQueryVO vo) {
         return RestBean.success(customerService.queryCustomerTableByCondition(vo));
     }
+
+    /**
+     * 逻辑删除顾客
+     *
+     * @param id 需要删除的顾客id
+     * @return 是否删除失败
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> logicDeleteOneCustomer(Integer id) {
+        return responseUtils.messageHandle(id, customerService::logicDeleteOneCustomer);
+    }
+
 }

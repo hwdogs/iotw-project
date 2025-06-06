@@ -110,6 +110,17 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         );
     }
 
+    /**
+     * 逻辑删除顾客
+     *
+     * @param id 需要删除顾客的id
+     * @return 是否删除成功
+     */
+    @Override
+    public String logicDeleteOneCustomer(Integer id) {
+        return removeById(id) ? null : "删除失败";
+    }
+
 
     private SFunction<Customer, ?> getSortLambda(String sortField) {
         return switch (sortField) {
