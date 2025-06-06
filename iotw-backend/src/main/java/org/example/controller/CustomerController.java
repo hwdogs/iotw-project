@@ -1,11 +1,25 @@
 package org.example.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import org.example.entity.RestBean;
+import org.example.entity.vo.request.AccountEmailRegisterVO;
+import org.example.entity.vo.request.CustomerAddVO;
+import org.example.entity.vo.request.CustomerQueryVO;
+import org.example.entity.vo.request.CustomerUpdateVO;
+import org.example.entity.vo.response.CustomerTableVO;
+import org.example.service.AccountService;
+import org.example.service.CustomerService;
+import org.example.utils.ResponseUtils;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
- *  前端控制器
+ * customer前端控制器
  * </p>
  *
  * @author hwshou
@@ -15,4 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/customer")
 public class CustomerController {
 
+    @Resource
+    private CustomerService customerService;
+
+    /**
+     * 请求顾客类别
+     *
+     * @param vo 请求信息
+     * @return 请求结果
+     */
+    @PostMapping("/query")
+    public RestBean<IPage<CustomerTableVO>> queryCustomerTableByCondition(
+            @Valid @RequestBody CustomerQueryVO vo) {
+        return RestBean.success(customerService.queryCustomerTableByCondition(vo));
+    }
 }

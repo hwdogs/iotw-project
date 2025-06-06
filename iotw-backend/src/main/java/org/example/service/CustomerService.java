@@ -1,16 +1,24 @@
 package org.example.service;
 
-import org.example.entity.dto.Customer;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.entity.dto.Customer;
+import org.example.entity.vo.request.AccountEmailRegisterVO;
+import org.example.entity.vo.request.CustomerAddVO;
+import org.example.entity.vo.request.CustomerQueryVO;
+import org.example.entity.vo.request.CustomerUpdateVO;
+import org.example.entity.vo.response.CustomerTableVO;
 
 /**
  * <p>
- *  服务类
+ * customer服务类
  * </p>
  *
  * @author hwshou
  * @since 2025-05-28 20:16
  */
 public interface CustomerService extends IService<Customer> {
+    IPage<CustomerTableVO> queryCustomerTableByCondition(CustomerQueryVO vo);
+
 
 }
