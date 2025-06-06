@@ -1,11 +1,9 @@
 package org.example.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.UserEntityContext;
 import org.example.entity.UserUpdateContext;
@@ -17,7 +15,6 @@ import org.example.entity.vo.request.SupplierUpdateVO;
 import org.example.entity.vo.response.SupplierTableVO;
 import org.example.mapper.SupplierMapper;
 import org.example.service.SupplierService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.utils.Const;
 import org.example.utils.UserEntityUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -54,6 +51,72 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      */
     @Override
     public IPage<SupplierTableVO> querySupplierTableByCondition(SupplierQueryVO vo) {
+        return UserEntityUtils.queryByConditions(
+                vo,
+                // 分页参数获取函数
+                v -> v.getPageNum().longValue(),
+                v -> v.getPageSize().longValue(),
+                //服务实例
+                this,
+                //字段选择器
+                wrapper -> wrapper.select(
+                        Supplier::getSupplierId,
+                        Supplier::getUsername,
+                        Supplier::getEmail,
+                        Supplier::getPhone,
+                        Supplier::getAddress,
+                        Supplier::getSex,
+                        Supplier::getBirth,
+                        Supplier::getRegisterTime,
+                        Supplier::getUpdateTime
+                ),
+                // 条件构造器
+                (v, wrapper) -> UserEntityUtils.buildCommonConditions(
+                        v,
+                        wrapper,
+                        // 值获取函数
+                        SupplierQueryVO::getSupplierId,
+                        SupplierQueryVO::getUsername,
+                        SupplierQueryVO::getEmail,
+                        SupplierQueryVO::getPhone,
+                        SupplierQueryVO::getAddress,
+                        SupplierQueryVO::getSex,
+                        SupplierQueryVO::getStartBirth,
+                        SupplierQueryVO::getEndBirth,
+                        SupplierQueryVO::getStartRegisterTime,
+                        SupplierQueryVO::getEndRegisterTime,
+                        SupplierQueryVO::getStartUpdateTime,
+                        SupplierQueryVO::getEndUpdateTime,
+                        // 字段获取函数
+                        Supplier::getSupplierId,
+                        Supplier::getUsername,
+                        Supplier::getEmail,
+                        Supplier::getPhone,
+                        Supplier::getAddress,
+                        Supplier::getSex,
+                        Supplier::getBirth,
+                        Supplier::getRegisterTime,
+                        Supplier::getUpdateTime,
+                        // 排序相关
+                        SupplierQueryVO::getSortField,
+                        SupplierQueryVO::getSortAsc,
+                        this::getSortLambda
+                ),
+                // 实体转换器
+                entity -> new SupplierTableVO(
+                        entity.getSupplierId(),
+                        entity.getUsername(),
+                        entity.getEmail(),
+                        entity.getPhone(),
+                        entity.getAddress(),
+                        entity.getSex(),
+                        entity.getBirth(),
+                        entity.getRegisterTime(),
+                        entity.getUpdateTime()
+                )
+        );
+
+        /*
         // 1.构建分页对象
         Page<Supplier> page = new Page<>(
                 vo.getPageNum(),
@@ -118,7 +181,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 entity.getBirth(),
                 entity.getRegisterTime(),
                 entity.getUpdateTime()
-        ));
+        ));*/
     }
 
     /**

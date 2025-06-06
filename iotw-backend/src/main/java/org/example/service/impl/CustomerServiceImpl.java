@@ -16,7 +16,6 @@ import org.example.entity.vo.response.CustomerTableVO;
 import org.example.mapper.CustomerMapper;
 import org.example.service.CustomerService;
 import org.example.utils.Const;
-import org.example.utils.PageQueryUtils;
 import org.example.utils.UserEntityUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,7 +51,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
      */
     @Override
     public IPage<CustomerTableVO> queryCustomerTableByCondition(CustomerQueryVO vo) {
-        return PageQueryUtils.queryByConditions(
+        return UserEntityUtils.queryByConditions(
                 vo,
                 // 分页参数获取函数
                 v -> v.getPageNum().longValue(),
@@ -72,7 +71,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                         Customer::getUsername
                 ),
                 // 条件构造器
-                (v, wrapper) -> PageQueryUtils.buildCommonConditions(
+                (v, wrapper) -> UserEntityUtils.buildCommonConditions(
                         v,
                         wrapper,
                         // 值获取函数
