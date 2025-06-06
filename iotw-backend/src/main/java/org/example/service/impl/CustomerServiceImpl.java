@@ -35,6 +35,14 @@ import java.util.function.Function;
 @Service
 public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> implements CustomerService {
 
+    @Resource
+    private CustomerMapper customerMapper;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 顾客多条件分页查询，支持排序
@@ -119,6 +127,71 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     @Override
     public String logicDeleteOneCustomer(Integer id) {
         return removeById(id) ? null : "删除失败";
+    }
+
+    /**
+     * 注册一名顾客
+     *
+     * @param vo 顾客信息
+     * @return 是否注册成功
+     */
+    @Override
+    public String registerOneCustomer(AccountEmailRegisterVO vo) {
+        return registerOrAddOneCustomer(vo);
+    }
+
+    /**
+     * 添加一名顾客
+     *
+     * @param vo 顾客信息
+     * @return 是否添加成功
+     */
+    @Override
+    public String addOneCustomer(CustomerAddVO vo) {
+        return registerOrAddOneCustomer(vo);
+    }
+
+
+    /**
+     * 注册或者添加一名顾客
+     *
+     * @param vo 注册或者添加顾客的信息
+     * @return 是否注册或者添加成功
+     */
+    private String registerOrAddOneCustomer(AccountEmailRegisterVO vo) {
+        return UserEntityUtils.addUserEntity(
+                vo,
+                Customer.class,
+                new UserEntityContext<Customer>() {
+                    @Override
+                    public boolean saveUser(Customer entity) {
+                        return customerMapper.insert(entity) > 0;
+                    }
+
+                    @Override
+                    public boolean existsUserEmail(String email) {
+                        return existsAccountEmail(email);
+                    }
+
+                    @Override
+                    public boolean existsUsername(String username) {
+                        return existsAccountUsername(username);
+                    }
+                },
+                stringRedisTemplate,
+                passwordEncoder,
+                // 自定义逻辑，密码加密
+                supplier -> supplier.setPassword(passwordEncoder.encode(vo.getPassword()))
+        );
+    }
+
+
+    private boolean existsAccountEmail(String email) {
+        return this.customerMapper.exists(Wrappers.<Customer>query().eq("email", email));
+    }
+
+    private boolean existsAccountUsername(String username) {
+        return this.customerMapper.exists(Wrappers.<Customer>query().eq("username", username));
     }
 
 

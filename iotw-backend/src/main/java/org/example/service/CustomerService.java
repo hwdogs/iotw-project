@@ -22,4 +22,7 @@ public interface CustomerService extends IService<Customer> {
 
     String logicDeleteOneCustomer(Integer id);
 
+    String registerOneCustomer(AccountEmailRegisterVO vo);
+
+    String addOneCustomer(CustomerAddVO vo);
 }

@@ -55,4 +55,42 @@ public class CustomerController {
         return responseUtils.messageHandle(id, customerService::logicDeleteOneCustomer);
     }
 
+    /**
+     * 注册顾客
+     *
+     * @param vo 注册信息
+     * @return 是否注册成功
+     */
+    @PostMapping("/register")
+    public RestBean<Void> registerOneCustomer(@Valid @RequestBody AccountEmailRegisterVO vo) {
+        return responseUtils.messageHandle(vo, customerService::registerOneCustomer);
+    }
+
+    /**
+     * 添加顾客
+     *
+     * @param vo 添加顾客的信息
+     * @return 是否添加成功
+     */
+    @PostMapping("/add")
+    public RestBean<Void> addOneCustomer(@Valid @RequestBody CustomerAddVO vo) {
+        return responseUtils.messageHandle(vo, customerService::addOneCustomer);
+    }
+
+    /**
+     * 请求邮件验证码
+     *
+     * @param email   请求邮件
+     * @param type    类型
+     * @param request 请求
+     * @return 是否请求成功
+     */
+    @GetMapping("/ask-code")
+    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+                                        @RequestParam @Pattern(regexp = "(register|reset)") String type,
+                                        HttpServletRequest request) {
+        return responseUtils.messageHandle(() ->
+                accountService.registerEmailVerifyCode(type, email, request.getRemoteAddr()));
+    }
+
 }
