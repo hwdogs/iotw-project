@@ -25,4 +25,6 @@ public interface CustomerService extends IService<Customer> {
     String registerOneCustomer(AccountEmailRegisterVO vo);
 
     String addOneCustomer(CustomerAddVO vo);
+
+    String updateOneCustomer(CustomerUpdateVO vo);
 }

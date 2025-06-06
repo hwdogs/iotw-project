@@ -32,6 +32,12 @@ public class CustomerController {
     @Resource
     private CustomerService customerService;
 
+    @Resource
+    private ResponseUtils responseUtils;
+
+    @Resource
+    private AccountService accountService;
+
     /**
      * 请求顾客类别
      *
@@ -93,4 +99,14 @@ public class CustomerController {
                 accountService.registerEmailVerifyCode(type, email, request.getRemoteAddr()));
     }
 
+    /**
+     * 更新一名顾客信息
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @PostMapping("/update")
+    public RestBean<Void> updateOneCustomer(@Valid @RequestBody CustomerUpdateVO vo) {
+        return responseUtils.messageHandle(vo, customerService::updateOneCustomer);
+    }
 }

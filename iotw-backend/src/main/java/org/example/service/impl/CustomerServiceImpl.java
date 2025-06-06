@@ -151,6 +151,45 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         return registerOrAddOneCustomer(vo);
     }
 
+    /**
+     * 更新顾客信息
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneCustomer(CustomerUpdateVO vo) {
+        return UserEntityUtils.updateUserEntity(
+                vo,
+                Customer.class,
+                new UserUpdateContext<Customer>() {
+                    @Override
+                    public <V> Function<V, Integer> getIdGetter() {
+                        return v -> ((CustomerUpdateVO) v).getCustomerId();
+                    }
+
+                    @Override
+                    public Customer getUserById(Integer id) {
+                        return customerMapper.selectById(id);
+                    }
+
+                    @Override
+                    public boolean existsUserEmailExcludingId(String email, Integer excludeId) {
+                        return customerMapper.exists(Wrappers.<Customer>query()
+                                .eq("email", email)
+                                .ne("customer_id", excludeId)
+                                .eq("deleted", Const.IS_NOT_DELETED));
+                    }
+
+                    @Override
+                    public boolean updateUser(Customer entity) {
+                        return customerMapper.updateById(entity) > 0;
+                    }
+                },
+                CustomerUpdateVO::getEmail,
+                null
+        );
+    }
 
     /**
      * 注册或者添加一名顾客
