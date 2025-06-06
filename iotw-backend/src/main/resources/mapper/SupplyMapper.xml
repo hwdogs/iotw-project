@@ -9,13 +9,14 @@
         <result column="good_id" property="goodId" />
         <result column="supply_number" property="supplyNumber" />
         <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime"/>
         <result column="status" property="status" />
         <result column="deleted" property="deleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        supply_id, supplier_id, good_id, supply_number, create_time, status, deleted
+        supply_id, supplier_id, good_id, supply_number, create_time, update_time, status, deleted
     </sql>
 
 </mapper>

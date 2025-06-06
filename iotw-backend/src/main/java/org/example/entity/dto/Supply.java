@@ -56,6 +56,12 @@ public class Supply implements Serializable {
     private LocalDateTime createTime;
 
     /**
+     * 更新时间
+     */
+    @TableField("update_time")
+    private LocalDateTime updateTime;
+
+    /**
      * 进货状态 0:未审批 1:已审批 -1:未通过
      */
     @TableField("status")
