@@ -115,4 +115,43 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
         ));
     }
 
+    /**
+     * 添加一条入库记录
+     *
+     * @param vo 进货信息
+     * @return 是否入库成功
+     */
+    @Override
+    public String addOneSupply(SupplyAddVO vo) {
+        // 1. 参数校验
+        if (vo.getSupplierId() == null) {
+            return "供货商ID不能为空";
+        }
+        if (vo.getGoodId() == null) {
+            return "货物ID不能为空";
+        }
+
+        /*
+            不需要检查数据库中是否已存在将要添加的记录，
+            同一个供货商可以进同一个货物不同时多次
+         */
+
+        // 2。 外键校验
+        if (supplierMapper.selectById(vo.getSupplierId()) == null) {
+            return "供货商不存在";
+        }
+        if (goodMapper.selectById(vo.getGoodId()) == null) {
+            return "货物不存在";
+        }
+
+        // 3. 安全转换
+        Supply supply = vo.asDTO(Supply.class, target -> {
+            target.setStatus(Const.NOT_APPROVED);
+            target.setCreateTime(LocalDateTime.now());
+            target.setUpdateTime(LocalDateTime.now());
+        });
+
+        return this.save(supply) ? null : "添加失败";
+    }
+
 }

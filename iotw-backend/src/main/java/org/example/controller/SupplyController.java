@@ -45,4 +45,16 @@ public class SupplyController {
                 result -> result == null ? "内部错误" : null
         );
     }
+
+    /**
+     * 添加一条入库信息
+     *
+     * @param vo 入库信息
+     * @return 是否添加成功
+     */
+    @PostMapping("/add")
+    public RestBean<Void> addOneSupply(@Valid @RequestBody SupplyAddVO vo) {
+        return responseUtils.messageHandle(vo, supplyService::addOneSupply);
+    }
+
 }

@@ -19,5 +19,6 @@ import org.example.entity.vo.response.SupplyTableVO;
 public interface SupplyService extends IService<Supply> {
     IPage<SupplyTableVO> querySupplyTableByCondition(SupplyQueryVO vo);
 
+    String addOneSupply(SupplyAddVO vo);
 
 }
