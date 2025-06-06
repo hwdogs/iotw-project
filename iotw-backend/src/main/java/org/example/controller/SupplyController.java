@@ -57,4 +57,15 @@ public class SupplyController {
         return responseUtils.messageHandle(vo, supplyService::addOneSupply);
     }
 
+    /**
+     * 更新一条入库信息
+     *
+     * @param vo 更新信息
+     * @return 是否更新成功
+     */
+    @PostMapping("/update")
+    public RestBean<Void> updateOneSupply(@Valid @RequestBody SupplyUpdateVO vo) {
+        return responseUtils.messageHandle(vo, supplyService::updateOneSupply);
+    }
+
 }

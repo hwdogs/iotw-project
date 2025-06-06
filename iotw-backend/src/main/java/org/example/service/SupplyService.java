@@ -21,4 +21,6 @@ public interface SupplyService extends IService<Supply> {
 
     String addOneSupply(SupplyAddVO vo);
 
+    String updateOneSupply(SupplyUpdateVO vo);
+
 }

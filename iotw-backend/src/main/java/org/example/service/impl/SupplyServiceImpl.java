@@ -31,6 +31,12 @@ import java.time.LocalDateTime;
 @Service
 public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> implements SupplyService {
 
+    @Resource
+    private SupplierMapper supplierMapper;
+
+    @Resource
+    private GoodMapper goodMapper;
+
     /**
      * 请求入库记录列表
      *
@@ -154,4 +160,57 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
         return this.save(supply) ? null : "添加失败";
     }
 
+    /**
+     * 更新一条入库信息
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneSupply(SupplyUpdateVO vo) {
+        // 1.参数校验
+        if (vo.getSupplyId() == null) {
+            return "入库ID不能为空";
+        }
+        if (vo.getSupplierId() == null && vo.getGoodId() == null) {
+            return "供货商和货物ID不能同时为空";
+        }
+
+        // 2.1 查询现有入库记录
+        LambdaQueryWrapper<Supply> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Supply::getSupplyId, vo.getSupplyId());
+        if (this.count(queryWrapper) == 0) {
+            return "更新的入库记录不存在";
+        }
+
+        // 2.2 如果记录存在则检查新信息是否存在
+        if (vo.getSupplierId() != null && supplierMapper.selectById(vo.getSupplierId()) == null) {
+            return "新供货商不存在";
+        }
+        if (vo.getGoodId() != null && goodMapper.selectById(vo.getGoodId()) == null) {
+            return "新货物不存在";
+        }
+
+        // 3. 安全转换，只处理需要特殊处理的字段
+        Supply supply = vo.asDTO(Supply.class, target -> {
+            target.setUpdateTime(LocalDateTime.now());
+            if (vo.getStatus() != null) {
+                target.setStatus(vo.getStatus());
+            }
+        });
+
+        return this.updateById(supply) ? null : "数据未变化";
+    }
+
+
+    private SFunction<Supply, ?> getSortLambda(String sortField) {
+        return switch (sortField) {
+            case "supply_id" -> Supply::getSupplyId;
+            case "supply_number" -> Supply::getSupplyNumber;
+            case "supplier_id" -> Supply::getSupplierId;
+            case "good_id" -> Supply::getGoodId;
+            case "create_time" -> Supply::getCreateTime;
+            default -> Supply::getUpdateTime;
+        };
+    }
 }
