@@ -17,6 +17,7 @@ import {
   HomeFilled,
   Management,
   Files,
+  GoodsFilled,
 } from '@element-plus/icons-vue'
 
 // 类型定义
@@ -52,6 +53,13 @@ const list = ref<MenuItem[]>([
         label: '商品列表',
         icon: markRaw(Box),
         url: 'Good',
+      },
+      {
+        path: '/index/good_add_or_update',
+        name: 'good_add_or_update',
+        label: '商品管理',
+        icon: markRaw(GoodsFilled),
+        url: 'GoodAddOrUpdate',
       },
       {
         path: '/index/supply',

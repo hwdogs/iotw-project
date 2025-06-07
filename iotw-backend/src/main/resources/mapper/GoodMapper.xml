@@ -7,18 +7,20 @@
         <id column="good_id" property="goodId" />
         <result column="good_name" property="goodName" />
         <result column="warehouse_id" property="warehouseId" />
+        <result column="num" property="num"/>
         <result column="category" property="category" />
         <result column="price" property="price" />
         <result column="standard" property="standard" />
         <result column="description" property="description" />
         <result column="image" property="image" />
+        <result column="update" property="updateTime"/>
         <result column="create_time" property="createTime" />
         <result column="deleted" property="deleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        good_id, good_name, warehouse_id, category, price, standard, description, image, create_time, deleted
+        good_id, good_name, warehouse_id, num, category, price, standard, description, image, update_time, create_time, deleted
     </sql>
 
 </mapper>

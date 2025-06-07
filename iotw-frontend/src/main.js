@@ -8,6 +8,7 @@ import '@/api/mock.js';
 import 'element-plus/theme-chalk/dark/css-vars.css'
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.timeout = 5000;
 
 const app = createApp(App)
 const pinia = createPinia()

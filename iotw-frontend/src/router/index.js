@@ -43,6 +43,11 @@ const router = createRouter({
                     component: () => import('@/views/GoodView.vue')
                 },
                 {
+                    path: 'good_add_or_update',
+                    name: 'good_add_or_update',
+                    component: () => import('@/views/GoodAddOrUpdateView.vue')
+                },
+                {
                     path: 'supply',
                     name: 'supply',
                     component: () => import('@/views/SupplyView.vue')

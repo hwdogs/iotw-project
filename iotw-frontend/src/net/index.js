@@ -46,7 +46,18 @@ function storeAccessToken(token, remember, expire) {
 }
 
 function internalPost(url, data, header, success, failure, error = defaultError) {
-    axios.post(url, data, { headers: header })
+    // 如果是FormData（文件上传），不设置Content-Type
+    const headers = data instanceof FormData ?
+        { ...header } :
+        { ...header, 'Content-Type': 'application/json' }
+
+    axios.post(url, data, {
+        headers: headers,
+        // 如果是文件上传，需要设置正确的请求配置
+        ...(data instanceof FormData ? {
+            transformRequest: [(data) => data]
+        } : {})
+    })
         .then(({ data }) => {
             if (data.code === 200) {
                 success(data.data)

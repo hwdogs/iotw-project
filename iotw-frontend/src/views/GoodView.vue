@@ -11,6 +11,7 @@ interface Good {
   goodId: number
   goodName: string
   warehouseId: number
+  num: number
   category: number
   price: number
   standard: string
@@ -43,11 +44,13 @@ const warehouseList = ref<Warehouse[]>([])
 const tableLabel = reactive<TableColumnConfig[]>([
   {prop: 'goodName', label: '商品名称'},
   {prop: 'warehouseId', label: '仓库ID'},
+  {prop: 'num', label: '货物数量'},
   {prop: 'categoryLabel', label: '商品类别'},
   {prop: 'price', label: '价格'},
   {prop: 'standard', label: '规格'},
   {prop: 'description', label: '描述', showOverflowTooltip: true},
-  {prop: 'createTime', label: '创建时间'}
+  {prop: 'updateTime', label: '更新时间', showOverflowTooltip: true},
+  {prop: 'createTime', label: '创建时间', showOverflowTooltip: true}
 ])
 
 // 映射配置
@@ -62,10 +65,12 @@ const CATEGORY_OPTIONS = [
 ]
 
 const SORT_OPTIONS = [
-  {value: 'create_time', label: '默认排序'},
+  {value: 'update_time', label: '默认排序'},
+  {value: 'create_time', label: '创建时间'},
   {value: 'warehouse_id', label: '仓库ID'},
-  { value: 'price', label: '价格' },
-  {value: 'good_id', label: '货物ID'}
+  {value: 'num', label: '货物数量'},
+  {value: 'price', label: '价格'},
+  {value: 'category', label: '货物类别'}
 ]
 
 // 定义初始状态
@@ -75,15 +80,19 @@ const initialState = {
   goodName: '',
   warehouseId: null as number | null,
   categoryId: null as number | null,
+  startNum: null as number | null,
+  endNum: null as number | null,
   startPrice: null as number | null,
   endPrice: null as number | null,
+  startUpdateTime: '',
+  endUpdateTime: '',
   startCreateTime: '',
   endCreateTime: '',
-  sortField: 'create_time',
+  sortField: 'update_time',
   sortAsc: false
 }
 
-const conditionForm = reactive({ ...initialState })
+const conditionForm = reactive({...initialState})
 
 // 表单引用
 const queryForm = ref<FormInstance>()
@@ -112,11 +121,6 @@ const getGoodData = () => {
   }
 }
 
-//仓库数据
-const getWarehouseData = () => {
-
-}
-
 // 分页处理
 const handlePageChange = (page: number) => {
   conditionForm.pageNum = page
@@ -131,13 +135,13 @@ const handleSizeChange = (size: number) => {
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  
+
   // 重置表单字段
   formEl.resetFields()
-  
+
   // 重置条件表单到初始状态
   Object.assign(conditionForm, initialState)
-  
+
   // 重新获取数据
   getGoodData()
 }
@@ -146,9 +150,10 @@ const resetQuery = (formEl: FormInstance | undefined) => {
 // 添加商品操作
 const handleAddOrEdit = (id: number | null) => {
   router.push({
-    name: 'good-add-edit',
-    params: {
-      goodId: id || 'new'
+    name: 'good_add_or_update',
+    query: {
+      type: id ? 'edit' : 'add',
+      id: id || undefined
     }
   })
 }
@@ -232,6 +237,22 @@ onMounted(() => {
             :precision="2"
             :step="0.1"
             :min="0"
+        />
+      </el-form-item>
+
+      <el-form-item label="更新时间">
+        <el-date-picker
+            v-model="conditionForm.startUpdateTime"
+            type="datetime"
+            placeholder="开始时间"
+            value-format="YYYY-MM-DD HH:mm:ss"
+        />
+        <span style="margin: 0 8px;">—</span>
+        <el-date-picker
+            v-model="conditionForm.endUpdateTime"
+            type="datetime"
+            placeholder="结束时间"
+            value-format="YYYY-MM-DD HH:mm:ss"
         />
       </el-form-item>
 
