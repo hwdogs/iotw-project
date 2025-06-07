@@ -361,7 +361,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             case "birth" -> Account::getBirth;
             case "role" -> Account::getRole;
             case "register_time" -> Account::getRegisterTime;
-            default -> Account::getId;
+            case "id" -> Account::getId;
+            default -> Account::getUpdateTime;
         };
     }
 
