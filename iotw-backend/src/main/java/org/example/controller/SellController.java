@@ -67,4 +67,14 @@ public class SellController {
         return responseUtils.messageHandle(vo, sellService::updateOneSell);
     }
 
+    /**
+     * 删除一条如出库信息
+     *
+     * @param id 需要删除的出库id
+     * @return 是否删除成功
+     */
+    @GetMapping("/delete")
+    public RestBean<Void> deleteOneSell(@RequestParam Integer id) {
+        return responseUtils.messageHandle(id, sellService::LogicDeleteOneSell);
+    }
 }

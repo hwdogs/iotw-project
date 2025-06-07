@@ -23,4 +23,5 @@ public interface SellService extends IService<Sell> {
 
     String updateOneSell(SellUpdateVO vo);
 
+    String LogicDeleteOneSell(Integer sellId);
 }

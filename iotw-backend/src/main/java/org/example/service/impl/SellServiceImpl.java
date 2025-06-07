@@ -200,6 +200,30 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
         return this.updateById(sell) ? null : "数据未变化";
     }
 
+    /**
+     * 逻辑删除一条出库记录
+     *
+     * @param sellId 入库记录id
+     * @return 是否删除成功
+     */
+    @Override
+    public String LogicDeleteOneSell(Integer sellId) {
+        // 1.参数校验
+        if (sellId == null) {
+            return "出库ID不能为空";
+        }
+
+        // 2.查询现有出库记录
+        LambdaQueryWrapper<Sell> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Sell::getSellId, sellId);
+        if (this.count(wrapper) == 0) {
+            return "将要删除的出库记录不存在";
+        }
+
+        // 3.安全逻辑删除
+        return this.removeById(sellId) ? null : "删除失败";
+    }
+
     private SFunction<Sell, ?> getSortLambda(String sortField) {
         return switch (sortField) {
             case "sell_id" -> Sell::getSellId;
