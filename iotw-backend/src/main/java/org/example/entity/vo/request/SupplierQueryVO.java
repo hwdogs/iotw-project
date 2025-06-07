@@ -29,12 +29,12 @@ public class SupplierQueryVO {
     private String address;         // address模糊擦洗
     private Short sex;              // sex精确查询
 
-    private LocalDate startBirth;        //生日范围查询
-    private LocalDate endBirth;
-    private LocalDateTime startRegisterTime;  // 创建时间范围查询
-    private LocalDateTime endRegisterTime;
-    private LocalDateTime startUpdateTime;  //更新时间范围查询
-    private LocalDateTime endUpdateTime;
+    private String startBirth;        //生日范围查询
+    private String endBirth;
+    private String startRegisterTime;  // 创建时间范围查询
+    private String endRegisterTime;
+    private String startUpdateTime;  //更新时间范围查询
+    private String endUpdateTime;
 
     // 排序字段
     private String sortField = "update_time";

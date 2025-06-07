@@ -70,16 +70,16 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         if (vo.getCustomerId() != null) {
             wrapper.likeRight(Customer::getCustomerId, vo.getCustomerId());
         }
-        if (vo.getUsername() != null) {
+        if (StringUtils.isNotBlank(vo.getUsername())) {
             wrapper.likeRight(Customer::getUsername, vo.getUsername());
         }
-        if (vo.getEmail() != null) {
+        if (StringUtils.isNotBlank(vo.getEmail())) {
             wrapper.likeRight(Customer::getEmail, vo.getEmail());
         }
-        if (vo.getPhone() != null) {
+        if (StringUtils.isNotBlank(vo.getPhone())) {
             wrapper.likeRight(Customer::getPhone, vo.getPhone());
         }
-        if (vo.getAddress() != null) {
+        if (StringUtils.isNotBlank(vo.getAddress())) {
             wrapper.like(Customer::getAddress, vo.getAddress());
         }
         if (vo.getSex() != null) {

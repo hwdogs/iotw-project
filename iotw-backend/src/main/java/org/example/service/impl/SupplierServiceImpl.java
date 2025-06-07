@@ -1,12 +1,16 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.UserEntityContext;
 import org.example.entity.UserUpdateContext;
+import org.example.entity.dto.Customer;
 import org.example.entity.dto.Supplier;
 import org.example.entity.vo.request.AccountEmailRegisterVO;
 import org.example.entity.vo.request.SupplierAddVO;
@@ -51,72 +55,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      */
     @Override
     public IPage<SupplierTableVO> querySupplierTableByCondition(SupplierQueryVO vo) {
-        return UserEntityUtils.queryByConditions(
-                vo,
-                // 分页参数获取函数
-                v -> v.getPageNum().longValue(),
-                v -> v.getPageSize().longValue(),
-                //服务实例
-                this,
-                //字段选择器
-                wrapper -> wrapper.select(
-                        Supplier::getSupplierId,
-                        Supplier::getUsername,
-                        Supplier::getEmail,
-                        Supplier::getPhone,
-                        Supplier::getAddress,
-                        Supplier::getSex,
-                        Supplier::getBirth,
-                        Supplier::getRegisterTime,
-                        Supplier::getUpdateTime
-                ),
-                // 条件构造器
-                (v, wrapper) -> UserEntityUtils.buildCommonConditions(
-                        v,
-                        wrapper,
-                        // 值获取函数
-                        SupplierQueryVO::getSupplierId,
-                        SupplierQueryVO::getUsername,
-                        SupplierQueryVO::getEmail,
-                        SupplierQueryVO::getPhone,
-                        SupplierQueryVO::getAddress,
-                        SupplierQueryVO::getSex,
-                        SupplierQueryVO::getStartBirth,
-                        SupplierQueryVO::getEndBirth,
-                        SupplierQueryVO::getStartRegisterTime,
-                        SupplierQueryVO::getEndRegisterTime,
-                        SupplierQueryVO::getStartUpdateTime,
-                        SupplierQueryVO::getEndUpdateTime,
-                        // 字段获取函数
-                        Supplier::getSupplierId,
-                        Supplier::getUsername,
-                        Supplier::getEmail,
-                        Supplier::getPhone,
-                        Supplier::getAddress,
-                        Supplier::getSex,
-                        Supplier::getBirth,
-                        Supplier::getRegisterTime,
-                        Supplier::getUpdateTime,
-                        // 排序相关
-                        SupplierQueryVO::getSortField,
-                        SupplierQueryVO::getSortAsc,
-                        this::getSortLambda
-                ),
-                // 实体转换器
-                entity -> new SupplierTableVO(
-                        entity.getSupplierId(),
-                        entity.getUsername(),
-                        entity.getEmail(),
-                        entity.getPhone(),
-                        entity.getAddress(),
-                        entity.getSex(),
-                        entity.getBirth(),
-                        entity.getRegisterTime(),
-                        entity.getUpdateTime()
-                )
-        );
-
-        /*
         // 1.构建分页对象
         Page<Supplier> page = new Page<>(
                 vo.getPageNum(),
@@ -148,20 +86,41 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (vo.getSex() != null) {
             wrapper.eq(Supplier::getSex, vo.getSex());
         }
-        if (vo.getStartBirth() != null && vo.getEndBirth() != null &&
-                StringUtils.isNotBlank(vo.getStartBirth().toString()) &&
-                StringUtils.isNotBlank(vo.getEndBirth().toString())) {
-            wrapper.between(Supplier::getBirth, vo.getStartBirth(), vo.getEndBirth());
+
+        String startBirth = vo.getStartBirth();
+        String endBirth = vo.getEndBirth();
+        if (StringUtils.isNotBlank(startBirth) && !StringUtils.isNotBlank(endBirth)) {
+            wrapper.ge(Supplier::getBirth, startBirth);
         }
-        if (vo.getStartRegisterTime() != null && vo.getEndUpdateTime() != null &&
-                StringUtils.isNotBlank(vo.getStartRegisterTime().toString()) &&
-                StringUtils.isNotBlank(vo.getEndUpdateTime().toString())) {
-            wrapper.between(Supplier::getRegisterTime, vo.getStartRegisterTime(), vo.getEndRegisterTime());
+        if (!StringUtils.isNotBlank(startBirth) && StringUtils.isNotBlank(endBirth)) {
+            wrapper.le(Supplier::getBirth, endBirth);
         }
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() != null &&
-                StringUtils.isNotBlank(vo.getStartUpdateTime().toString()) &&
-                StringUtils.isNotBlank(vo.getEndUpdateTime().toString())) {
-            wrapper.between(Supplier::getUpdateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
+        if (StringUtils.isNotBlank(startBirth) && StringUtils.isNotBlank(endBirth)) {
+            wrapper.between(Supplier::getBirth, startBirth, endBirth);
+        }
+
+        String startRegisterTime = vo.getStartRegisterTime();
+        String endRegisterTime = vo.getEndRegisterTime();
+        if (StringUtils.isNotBlank(startRegisterTime) && !StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.ge(Supplier::getRegisterTime, startRegisterTime);
+        }
+        if (!StringUtils.isNotBlank(startRegisterTime) && StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.le(Supplier::getRegisterTime, endRegisterTime);
+        }
+        if (StringUtils.isNotBlank(startRegisterTime) && StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.between(Supplier::getRegisterTime, startRegisterTime, endRegisterTime);
+        }
+
+        String startUpdateTime = vo.getStartUpdateTime();
+        String endUpdateTime = vo.getEndUpdateTime();
+        if (StringUtils.isNotBlank(startUpdateTime) && !StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.ge(Supplier::getUpdateTime, startUpdateTime);
+        }
+        if (!StringUtils.isNotBlank(startUpdateTime) && StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.le(Supplier::getUpdateTime, endUpdateTime);
+        }
+        if (StringUtils.isNotBlank(startUpdateTime) && StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.between(Supplier::getUpdateTime, startUpdateTime, endUpdateTime);
         }
 
         // 4.动态排序
@@ -181,7 +140,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 entity.getBirth(),
                 entity.getRegisterTime(),
                 entity.getUpdateTime()
-        ));*/
+        ));
     }
 
     /**
