@@ -115,6 +115,44 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
         ));
     }
 
+    /**
+     * 添加一条入库记录
+     *
+     * @param vo 进货信息
+     * @return 是否入库成功
+     */
+    @Override
+    public String addOneSell(SellAddVO vo) {
+        // 1.参数校验
+        if (vo.getCustomerId() == null) {
+            return "顾客ID不能为空";
+        }
+        if (vo.getGoodId() == null) {
+            return "货物ID不能为空";
+        }
+
+        /*
+            不需要检查数据库中是否已存在将要添加的记录，
+            同一个顾客可以进同一个货物多次
+         */
+
+        // 2.外键校验
+        if (customerMapper.selectById(vo.getCustomerId()) == null) {
+            return "顾客不存在";
+        }
+        if (goodMapper.selectById(vo.getGoodId()) == null) {
+            return "货物不存在";
+        }
+
+        // 3.安全转换
+        Sell sell = vo.asDTO(Sell.class, target -> {
+            target.setCreateTime(LocalDateTime.now());
+            target.setUpdateTime(LocalDateTime.now());
+        });
+
+        return this.save(sell) ? null : "添加失败";
+    }
+
     private SFunction<Sell, ?> getSortLambda(String sortField) {
         return switch (sortField) {
             case "sell_id" -> Sell::getSellId;

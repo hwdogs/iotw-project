@@ -19,5 +19,6 @@ import org.example.entity.vo.response.SellTableVO;
 public interface SellService extends IService<Sell> {
     IPage<SellTableVO> querySellTableByCondition(SellQueryVO vo);
 
+    String addOneSell(SellAddVO vo);
 
 }

@@ -45,5 +45,15 @@ public class SellController {
         );
     }
 
+    /**
+     * 添加一条出库信息
+     *
+     * @param vo 出库信息
+     * @return 是否添加成功
+     */
+    @PostMapping("/add")
+    public RestBean<Void> addOneSell(@Valid @RequestBody SellAddVO vo) {
+        return responseUtils.messageHandle(vo, sellService::addOneSell);
+    }
 
 }
