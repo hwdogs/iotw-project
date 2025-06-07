@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -57,8 +58,8 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
                 Supply::getStatus, Supply::getCreateTime, Supply::getUpdateTime);
 
         // 3. 条件组合
-        if (vo.getSupplierId() != null) {
-            wrapper.likeRight(Supply::getSupplierId, vo.getSupplierId());
+        if (vo.getSupplyId() != null) {
+            wrapper.likeRight(Supply::getSupplyId, vo.getSupplyId());
         }
         if (vo.getGoodId() != null) {
             wrapper.likeRight(Supply::getGoodId, vo.getGoodId());
@@ -83,23 +84,23 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
             wrapper.between(Supply::getSupplyNumber, vo.getStartSupplyNumber(), vo.getEndSupplyNumber());
         }
         // 创建时间
-        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() == null) {
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && !StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.ge(Supply::getCreateTime, vo.getStartCreateTime());
         }
-        if (vo.getStartCreateTime() == null && vo.getEndCreateTime() != null) {
+        if (!StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.le(Supply::getCreateTime, vo.getEndCreateTime());
         }
-        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() != null) {
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.between(Supply::getCreateTime, vo.getStartCreateTime(), vo.getEndCreateTime());
         }
         // 更新时间
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() == null) {
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && !StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.ge(Supply::getUpdateTime, vo.getStartUpdateTime());
         }
-        if (vo.getStartUpdateTime() == null && vo.getEndUpdateTime() != null) {
+        if (!StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.le(Supply::getUpdateTime, vo.getEndUpdateTime());
         }
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() != null) {
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.between(Supply::getCreateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
         }
 

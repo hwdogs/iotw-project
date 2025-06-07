@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
-import java.time.LocalDateTime;
-
 /**
  * supply供货前端请求列表请求类
  *
@@ -28,10 +26,10 @@ public class SupplyQueryVO {
 
     private Integer startSupplyNumber;   // 货物数量范围查询
     private Integer endSupplyNumber;
-    private LocalDateTime startCreateTime;  // 进货时间范围查询
-    private LocalDateTime endCreateTime;
-    private LocalDateTime startUpdateTime;  // 更新时间范围查询
-    private LocalDateTime endUpdateTime;
+    private String startCreateTime;  // 进货时间范围查询
+    private String endCreateTime;
+    private String startUpdateTime;  // 更新时间范围查询
+    private String endUpdateTime;
 
     // 排序字段
     private String sortField = "create_time";
