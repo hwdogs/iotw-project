@@ -21,4 +21,6 @@ public interface SellService extends IService<Sell> {
 
     String addOneSell(SellAddVO vo);
 
+    String updateOneSell(SellUpdateVO vo);
+
 }

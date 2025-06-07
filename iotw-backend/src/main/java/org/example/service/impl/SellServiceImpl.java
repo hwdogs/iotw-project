@@ -153,6 +153,53 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
         return this.save(sell) ? null : "添加失败";
     }
 
+    /**
+     * 更新一条出库信息
+     *
+     * @param vo 需要更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneSell(SellUpdateVO vo) {
+        // 1.参数校验
+        if (vo.getSellId() == null) {
+            return "出库ID不能为空";
+        }
+        if (vo.getCustomerId() == null && vo.getGoodId() == null) {
+            return "顾客和货物ID不能同时为空";
+        }
+
+        // 2.1 查询现有出库记录
+        LambdaQueryWrapper<Sell> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Sell::getSellId, vo.getSellId());
+        if (this.count(wrapper) == 0) {
+            return "更新的出库信息不存在";
+        }
+
+        // 2.2 如果记录存在则检查要更新的信息是否存在，包括被逻辑删除的
+        LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
+        customerWrapper.eq(Customer::getCustomerId, vo.getCustomerId())
+                .last("OR deleted = 1");
+        if (vo.getCustomerId() != null && customerMapper.selectOne(customerWrapper) == null) {
+            return "更新的顾客不存在";
+        }
+
+        LambdaQueryWrapper<Good> goodWrapper = new LambdaQueryWrapper<>();
+        goodWrapper.eq(Good::getGoodId, vo.getGoodId())
+                .last("OR deleted = 1");
+        ;
+        if (vo.getGoodId() != null && goodMapper.selectOne(goodWrapper) == null) {
+            return "更新的货物不存在";
+        }
+
+        // 3. 安全转换，只处理需要特殊处理的字段
+        Sell sell = vo.asDTO(Sell.class, target -> {
+            target.setUpdateTime(LocalDateTime.now());
+        });
+
+        return this.updateById(sell) ? null : "数据未变化";
+    }
+
     private SFunction<Sell, ?> getSortLambda(String sortField) {
         return switch (sortField) {
             case "sell_id" -> Sell::getSellId;

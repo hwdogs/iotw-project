@@ -56,4 +56,15 @@ public class SellController {
         return responseUtils.messageHandle(vo, sellService::addOneSell);
     }
 
+    /**
+     * 更新一条出库信息
+     *
+     * @param vo 出库信息
+     * @return 是否更新成功
+     */
+    @PostMapping("/update")
+    public RestBean<Void> updateOneSell(@Valid @RequestBody SellUpdateVO vo) {
+        return responseUtils.messageHandle(vo, sellService::updateOneSell);
+    }
+
 }
