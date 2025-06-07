@@ -31,6 +31,6 @@ public class SellQueryVO {
     private String endUpdateTime;
 
     // 排序字段
-    private String sortField = "create_time";
+    private String sortField = "update_time";
     private Boolean sortAsc = false; // 默认降序
 }

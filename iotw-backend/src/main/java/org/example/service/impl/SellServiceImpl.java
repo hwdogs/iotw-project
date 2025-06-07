@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 import org.example.entity.dto.Customer;
 import org.example.entity.dto.Good;
 import org.example.entity.dto.Sell;
+import org.example.entity.dto.Supply;
 import org.example.entity.vo.request.SellAddVO;
 import org.example.entity.vo.request.SellQueryVO;
 import org.example.entity.vo.request.SellUpdateVO;
@@ -17,6 +18,7 @@ import org.example.entity.vo.response.SellTableVO;
 import org.example.mapper.CustomerMapper;
 import org.example.mapper.GoodMapper;
 import org.example.mapper.SellMapper;
+import org.example.mapper.SupplyMapper;
 import org.example.service.SellService;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +40,9 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
 
     @Resource
     private GoodMapper goodMapper;
+
+    @Resource
+    private SupplyMapper supplyMapper;
 
     /**
      * 请求出库记录表
@@ -141,11 +146,27 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
         if (customerMapper.selectById(vo.getCustomerId()) == null) {
             return "顾客不存在";
         }
-        if (goodMapper.selectById(vo.getGoodId()) == null) {
+
+        Good sellGood = goodMapper.selectById(vo.getGoodId());
+        if (sellGood == null) {
             return "货物不存在";
         }
 
-        // 3.安全转换
+        // 3.更新good表
+        if (vo.getSellNumber() != null) {
+            Integer allTheGoodNum = sellGood.getNum();
+            Integer sellTheGoodNum = vo.getSellNumber();
+            //如果要出库的数量大于库存数量，则返回
+            if (sellTheGoodNum > allTheGoodNum) {
+                return "当前商品数量小于" + sellTheGoodNum;
+            }
+            //否则更新对应good库存数量
+            sellGood.setNum(allTheGoodNum - sellTheGoodNum);
+            sellGood.setUpdateTime(LocalDateTime.now());
+            goodMapper.updateById(sellGood);
+        }
+
+        // 4.安全转换
         Sell sell = vo.asDTO(Sell.class, target -> {
             target.setCreateTime(LocalDateTime.now());
             target.setUpdateTime(LocalDateTime.now());
