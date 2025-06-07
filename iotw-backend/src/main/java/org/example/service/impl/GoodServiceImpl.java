@@ -65,6 +65,15 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
         if (vo.getStartPrice() != null && vo.getEndPrice() != null) {
             wrapper.between(Good::getPrice, vo.getStartPrice(), vo.getEndPrice());
         }
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && !StringUtils.isNotBlank(vo.getEndCreateTime())) {
+            wrapper.ge(Good::getCreateTime, vo.getStartCreateTime());
+        }
+        if (!StringUtils.isNotBlank(vo.getEndCreateTime()) && StringUtils.isNotBlank(vo.getStartCreateTime())) {
+            wrapper.le(Good::getCreateTime, vo.getEndCreateTime());
+        }
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
+            wrapper.between(Good::getCreateTime, vo.getStartCreateTime(), vo.getEndCreateTime());
+        }
 
         // 4.动态排序
         wrapper.orderBy(true, vo.getSortAsc(),

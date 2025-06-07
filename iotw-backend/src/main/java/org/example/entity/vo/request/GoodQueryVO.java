@@ -28,8 +28,8 @@ public class GoodQueryVO {
     private Short categoryId;       //类别筛选
     private BigDecimal startPrice;     //价格范围查询
     private BigDecimal endPrice;
-    private LocalDateTime startCreateTime;  //添加时间范围查询
-    private LocalDateTime endCreateTime;
+    private String startCreateTime;  //添加时间范围查询
+    private String endCreateTime;
 
     //排序字段
     private String sortField = "create_time";
