@@ -2,9 +2,11 @@ package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.entity.dto.Manage;
+import org.example.entity.dto.Sell;
 import org.example.entity.vo.request.ManageAddVO;
 import org.example.entity.vo.request.ManageQueryVO;
 import org.example.entity.vo.response.ManageTableVO;
@@ -53,11 +55,25 @@ public class ManageServiceImpl extends ServiceImpl<ManageMapper, Manage> impleme
         if (vo.getAccountId() != null) {
             wrapper.eq(Manage::getAccountId, vo.getAccountId());
         }
-        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() != null) {
+
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && !StringUtils.isNotBlank(vo.getEndCreateTime())) {
+            wrapper.ge(Manage::getCreateTime, vo.getStartCreateTime());
+        }
+        if (!StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
+            wrapper.le(Manage::getCreateTime, vo.getEndCreateTime());
+        }
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.between(Manage::getCreateTime, vo.getStartCreateTime(), vo.getEndCreateTime());
         }
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() != null) {
-            wrapper.between(Manage::getUpdateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
+        // 更新时间
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && !StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.ge(Manage::getUpdateTime, vo.getStartUpdateTime());
+        }
+        if (!StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.le(Manage::getUpdateTime, vo.getEndUpdateTime());
+        }
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.between(Manage::getCreateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
         }
 
         // 4.动态排序

@@ -23,10 +23,10 @@ public class ManageQueryVO {
 
     private Integer warehouseId;
     private Integer accountId;
-    private LocalDateTime startCreateTime;
-    private LocalDateTime endCreateTime;
-    private LocalDateTime startUpdateTime;
-    private LocalDateTime endUpdateTime;
+    private String startCreateTime;
+    private String endCreateTime;
+    private String startUpdateTime;
+    private String endUpdateTime;
 
     // 排序字段
     private String sortField = "create_time";
