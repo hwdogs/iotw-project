@@ -31,6 +31,6 @@ public class AccountQueryVO {
     private String email;   // 模糊查询邮箱
 
     // 排序字段
-    private String sortField = "register_time";
+    private String sortField = "update_time";
     private Boolean sortAsc = false; // 默认降序
 }
