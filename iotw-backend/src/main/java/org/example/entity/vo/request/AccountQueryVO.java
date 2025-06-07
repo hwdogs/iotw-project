@@ -26,8 +26,8 @@ public class AccountQueryVO {
     private String username;  // 模糊查询用户名
     private Integer role;      // 精确匹配角色
     private Integer sex;       // 性别筛选
-    private LocalDate startBirth; // 出生日期范围查询
-    private LocalDate endBirth;
+    private String startBirth; // 出生日期范围查询
+    private String endBirth;
     private String email;   // 模糊查询邮箱
 
     // 排序字段

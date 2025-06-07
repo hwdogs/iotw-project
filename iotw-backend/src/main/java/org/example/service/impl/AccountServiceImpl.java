@@ -229,9 +229,17 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if (vo.getSex() != null) {
             wrapper.eq(Account::getSex, vo.getSex());
         }
-        if (vo.getStartBirth() != null && vo.getEndBirth() != null) {
+
+        if (StringUtils.isNotBlank(vo.getStartBirth()) && !StringUtils.isNotBlank(vo.getEndBirth())) {
+            wrapper.ge(Account::getBirth, vo.getStartBirth());
+        }
+        if (!StringUtils.isNotBlank(vo.getStartBirth()) && StringUtils.isNotBlank(vo.getEndBirth())) {
+            wrapper.le(Account::getBirth, vo.getEndBirth());
+        }
+        if (StringUtils.isNotBlank(vo.getStartBirth()) && StringUtils.isNotBlank(vo.getEndBirth())) {
             wrapper.between(Account::getBirth, vo.getStartBirth(), vo.getEndBirth());
         }
+
         if (StringUtils.isNotBlank(vo.getEmail())) {
             wrapper.like(Account::getEmail, vo.getEmail());
         }
