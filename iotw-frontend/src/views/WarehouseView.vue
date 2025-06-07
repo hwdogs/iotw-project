@@ -5,6 +5,7 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import type {FormInstance} from 'element-plus'
 import {Search, RefreshLeft, Plus} from '@element-plus/icons-vue'
 import router from '@/router'
+import { start } from 'echart';
 
 //类型定义
 interface Warehouse {
@@ -42,25 +43,29 @@ const tableLabel = reactive<TableColumnConfig[]>([
 ])
 
 const SORT_OPTIONS = [
-  {value: 'warehouseId', label: '默认ID排序'},
+  {value: 'update_time', label: '默认排序'},
   {value: 'area', label: '面积'},
-  {value: 'createTime', label: '创建时间'},
-  {value: 'updateTime', label: '更新时间'}
+  {value: 'create_time', label: '创建时间'},
+  {value: 'warehouse_id', label: '仓库ID'}
 ]
 
-const conditionForm = reactive({
+// 定义初始状态
+const initialState = {
   pageNum: 1,
   pageSize: 10,
   warehouseName: '',
+  warehouseAddress: '',
   startArea: null as number | null,
   endArea: null as number | null,
   startCreateTime: '',
   endCreateTime: '',
   startUpdateTime: '',
   endUpdateTime: '',
-  sortField: 'warehouseId',
-  sortAsc: false,
-})
+  sortField: 'update_time',
+  sortAsc: false
+}
+
+const conditionForm = reactive({ ...initialState })
 
 // 添加表单引用类型
 const queryForm = ref<FormInstance>()
@@ -141,10 +146,15 @@ const handleSizeChange = (size: number) => {
 
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
   if (!formEl) return
+  
+  // 重置表单字段
   formEl.resetFields()
-  conditionForm.pageNum = 1
+  
+  // 重置条件表单到初始状态
+  Object.assign(conditionForm, initialState)
+  
+  // 重新获取数据
   getWarehouseData()
 }
 

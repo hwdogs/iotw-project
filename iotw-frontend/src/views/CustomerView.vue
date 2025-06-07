@@ -32,7 +32,7 @@ const loading = ref<boolean>(false);
 const totalSearch = ref(0);
 
 const tableLabel = reactive<TableColumnConfig[]>([
-  {prop: 'customerId', label: 'ID', width: '80'},
+  {prop: 'customerId', label: 'ID', width: '95'},
   {prop: 'username', label: '用户名'},
   {prop: 'birth', label: '出生日期'},
   {prop: 'sexLabel', label: '性别'},
@@ -49,13 +49,14 @@ const SEX_OPTIONS = [
 ]
 
 const SORT_OPTIONS = [
-  {value: 'customerId', label: '默认排序'},
+  {value: 'update_time', label: '默认排序'},
   {value: 'birth', label: '出生日期'},
   {value: 'register_time', label: '注册时间'},
-  {value: 'update_time', label: '更新时间'}
+  {value: 'customer_id', label: '顾客ID'}
 ]
 
-const conditionForm = reactive({
+// 定义初始状态
+const initialState = {
   pageNum: 1,
   pageSize: 10,
   username: '',
@@ -70,8 +71,10 @@ const conditionForm = reactive({
   startUpdateTime: '',
   endUpdateTime: '',
   sortField: 'update_time',
-  sortAsc: false,
-})
+  sortAsc: false
+}
+
+const conditionForm = reactive({ ...initialState })
 
 // 添加表单引用类型
 const queryForm = ref<FormInstance>()
@@ -79,22 +82,41 @@ const queryForm = ref<FormInstance>()
 const getCustomerData = () => {
   try {
     loading.value = true
-    post('/api/customer/query', conditionForm, (res) => {
+    // 创建请求数据的副本
+    const requestData = { ...conditionForm }
+    
+    // 转换日期格式
+    const formatDate = (dateStr: string | undefined) => {
+      if (!dateStr) return undefined
+      // 将日期字符串转换为 Date 对象
+      const date = new Date(dateStr)
+      // 格式化为 YYYY-MM-DDTHH:mm:ss 格式
+      return date.toISOString().replace('Z', '')
+    }
+
+    // 转换所有日期字段
+    requestData.startRegisterTime = formatDate(requestData.startRegisterTime)
+    requestData.endRegisterTime = formatDate(requestData.endRegisterTime)
+    requestData.startUpdateTime = formatDate(requestData.startUpdateTime)
+    requestData.endUpdateTime = formatDate(requestData.endUpdateTime)
+
+    console.log('发送到后端的数据:', requestData) // 添加日志查看发送的数据
+
+    post('/api/customer/query', requestData, (res) => {
       if (res) {
         const {records, total} = res;
-        console.log('后端返回的原始数据:', records)
 
         tableData.value = records.map((item: Customer) => {
-          console.log('处理前的item:', item)
           const mappedItem = {
             ...item,
-            sexLabel: SEX_OPTIONS.find(s => s.value === item.sex)?.label || '未知'
+            sexLabel: SEX_OPTIONS.find(s => s.value === item.sex)?.label || '未知',
+            // 格式化日期显示
+            registerTime: item.registerTime ? item.registerTime.replace('T', ' ') : '',
+            updateTime: item.updateTime ? item.updateTime.replace('T', ' ') : ''
           }
-          console.log('处理后的item:', mappedItem)
           return mappedItem
         })
 
-        console.log('最终tableData:', tableData.value)
         totalSearch.value = total
       }
     }, (err) => {
@@ -121,10 +143,15 @@ const handleSizeChange = (size: number) => {
 
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
   if (!formEl) return
+  
+  // 重置表单字段
   formEl.resetFields()
-  conditionForm.pageNum = 1
+  
+  // 重置条件表单到初始状态
+  Object.assign(conditionForm, initialState)
+  
+  // 重新获取数据
   getCustomerData()
 }
 

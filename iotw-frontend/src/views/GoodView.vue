@@ -62,15 +62,14 @@ const CATEGORY_OPTIONS = [
 ]
 
 const SORT_OPTIONS = [
-  {value: 'good_id', label: '默认排序'},
-  {value: 'create_time', label: '创建时间'},
+  {value: 'create_time', label: '默认排序'},
   {value: 'warehouse_id', label: '仓库ID'},
-  {value: 'category', label: '商品类别'},
-  {value: 'price', label: '价格'}
+  { value: 'price', label: '价格' },
+  {value: 'good_id', label: '货物ID'}
 ]
 
-// 搜索表单数据
-const conditionForm = reactive({
+// 定义初始状态
+const initialState = {
   pageNum: 1,
   pageSize: 10,
   goodName: '',
@@ -82,7 +81,9 @@ const conditionForm = reactive({
   endCreateTime: '',
   sortField: 'create_time',
   sortAsc: false
-})
+}
+
+const conditionForm = reactive({ ...initialState })
 
 // 表单引用
 const queryForm = ref<FormInstance>()
@@ -129,10 +130,15 @@ const handleSizeChange = (size: number) => {
 
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
   if (!formEl) return
+  
+  // 重置表单字段
   formEl.resetFields()
-  conditionForm.pageNum = 1
+  
+  // 重置条件表单到初始状态
+  Object.assign(conditionForm, initialState)
+  
+  // 重新获取数据
   getGoodData()
 }
 

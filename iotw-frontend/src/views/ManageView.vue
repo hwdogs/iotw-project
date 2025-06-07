@@ -53,9 +53,12 @@ const tableLabel = reactive<TableColumnConfig[]>([
   {prop: 'updateTime', label: '更新时间'}
 ])
 
-const conditionForm = reactive({
+// 定义初始状态
+const initialState = {
   pageNum: 1,
   pageSize: 10,
+  username: '',
+  roleId: null as number | null,
   warehouseId: null as number | null,
   accountId: null as number | null,
   startCreateTime: '',
@@ -63,8 +66,10 @@ const conditionForm = reactive({
   startUpdateTime: '',
   endUpdateTime: '',
   sortField: 'create_time',
-  sortAsc: false,
-})
+  sortAsc: false
+}
+
+const conditionForm = reactive({ ...initialState })
 
 // 添加表单引用类型
 const queryForm = ref<FormInstance>()
@@ -176,10 +181,15 @@ const handleSizeChange = (size: number) => {
 
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
   if (!formEl) return
+  
+  // 重置表单字段
   formEl.resetFields()
-  conditionForm.pageNum = 1
+  
+  // 重置条件表单到初始状态
+  Object.assign(conditionForm, initialState)
+  
+  // 重新获取数据
   getManageData()
 }
 

@@ -45,13 +45,14 @@ const SEX_OPTIONS = [
 ]
 
 const SORT_OPTIONS = [
-  {value: 'supplierId', label: '默认排序'},
+  {value: 'update_time', label: '默认排序'},
   {value: 'birth', label: '出生日期'},
   {value: 'register_time', label: '注册时间'},
-  {value: 'update_time', label: '更新时间'}
+  {value: 'supplier_id', label: '供应商ID'}
 ]
 
-const conditionForm = reactive({
+// 定义初始状态
+const initialState = {
   pageNum: 1,
   pageSize: 10,
   username: '',
@@ -61,9 +62,15 @@ const conditionForm = reactive({
   email: '',
   phone: '',
   address: '',
+  startRegisterTime: '',
+  endRegisterTime: '',
+  startUpdateTime: '',
+  endUpdateTime: '',
   sortField: 'update_time',
-  sortAsc: false,
-})
+  sortAsc: false
+}
+
+const conditionForm = reactive({ ...initialState })
 
 // 添加表单引用类型
 const queryForm = ref<FormInstance>()
@@ -113,10 +120,15 @@ const handleSizeChange = (size: number) => {
 
 // 搜索重置
 const resetQuery = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
   if (!formEl) return
+  
+  // 重置表单字段
   formEl.resetFields()
-  conditionForm.pageNum = 1
+  
+  // 重置条件表单到初始状态
+  Object.assign(conditionForm, initialState)
+  
+  // 重新获取数据
   getSupplierData()
 }
 
@@ -359,72 +371,111 @@ onMounted(() => {
         :inline="true"
         :model="conditionForm"
         class="search-form">
-      <el-form-item label="用户名" prop="username">
-        <el-input
-            v-model="conditionForm.username"
-            placeholder="输入用户名"
-            clearable
-        />
-      </el-form-item>
-
-      <el-form-item label="性别" prop="sex">
-        <el-select
-            v-model.number="conditionForm.sex"
-            placeholder="选择性别"
-            clearable
-            value-key="value"
-            style="width: 110px;"
-        >
-          <el-option
-              v-for="item in SEX_OPTIONS"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+      <!-- 第一行：基本信息 -->
+      <div class="form-row">
+        <el-form-item label="用户名" prop="username">
+          <el-input
+              v-model="conditionForm.username"
+              placeholder="输入用户名"
+              clearable
           />
-        </el-select>
-      </el-form-item>
+        </el-form-item>
 
-      <el-form-item label="出生日期">
-        <el-date-picker
-            v-model="conditionForm.startBirth"
-            type="date"
-            placeholder="开始日期"
-            value-format="YYYY-MM-DD"
-        />
-        <span style="margin: 0 8px;">—</span>
-        <el-date-picker
-            v-model="conditionForm.endBirth"
-            type="date"
-            placeholder="结束日期"
-            value-format="YYYY-MM-DD"
-        />
-      </el-form-item>
+        <el-form-item label="性别" prop="sex">
+          <el-select
+              v-model.number="conditionForm.sex"
+              placeholder="选择性别"
+              clearable
+              value-key="value"
+              style="width: 110px;"
+          >
+            <el-option
+                v-for="item in SEX_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
 
-      <el-form-item label="邮箱" prop="email">
-        <el-input
-            v-model="conditionForm.email"
-            placeholder="输入邮箱"
-            clearable
-        />
-      </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input
+              v-model="conditionForm.email"
+              placeholder="输入邮箱"
+              clearable
+          />
+        </el-form-item>
 
-      <el-form-item label="电话" prop="phone">
-        <el-input
-            v-model="conditionForm.phone"
-            placeholder="输入电话"
-            clearable
-        />
-      </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input
+              v-model="conditionForm.phone"
+              placeholder="输入电话"
+              clearable
+          />
+        </el-form-item>
 
-      <el-form-item label="地址" prop="address">
-        <el-input
-            v-model="conditionForm.address"
-            placeholder="输入地址"
-            clearable
-        />
-      </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input
+              v-model="conditionForm.address"
+              placeholder="输入地址"
+              clearable
+          />
+        </el-form-item>
+      </div>
 
-      <div>
+      <!-- 第二行：时间相关 -->
+      <div class="form-row">
+        <el-form-item label="出生日期">
+          <el-date-picker
+              v-model="conditionForm.startBirth"
+              type="date"
+              placeholder="开始日期"
+              value-format="YYYY-MM-DD"
+          />
+          <span style="margin: 0 8px;">—</span>
+          <el-date-picker
+              v-model="conditionForm.endBirth"
+              type="date"
+              placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+
+        <el-form-item label="注册时间">
+          <el-date-picker
+              v-model="conditionForm.startRegisterTime"
+              type="datetime"
+              placeholder="开始时间"
+              value-format="YYYY-MM-DD HH:mm:ss"
+          />
+          <span style="margin: 0 8px;">—</span>
+          <el-date-picker
+              v-model="conditionForm.endRegisterTime"
+              type="datetime"
+              placeholder="结束时间"
+              value-format="YYYY-MM-DD HH:mm:ss"
+          />
+        </el-form-item>
+
+        <el-form-item label="更新时间">
+          <el-date-picker
+              v-model="conditionForm.startUpdateTime"
+              type="datetime"
+              placeholder="开始时间"
+              value-format="YYYY-MM-DD HH:mm:ss"
+          />
+          <span style="margin: 0 8px;">—</span>
+          <el-date-picker
+              v-model="conditionForm.endUpdateTime"
+              type="datetime"
+              placeholder="结束时间"
+              value-format="YYYY-MM-DD HH:mm:ss"
+          />
+        </el-form-item>
+      </div>
+
+      <!-- 第三行：排序和操作按钮 -->
+      <div class="form-row">
         <el-form-item label="排序方式">
           <el-select
               v-model="conditionForm.sortField"
@@ -441,7 +492,6 @@ onMounted(() => {
           </el-select>
         </el-form-item>
 
-        <!-- 排序方向切换 -->
         <el-form-item label="排序方向">
           <el-button-group>
             <el-button
@@ -458,12 +508,12 @@ onMounted(() => {
             </el-button>
           </el-button-group>
         </el-form-item>
-      </div>
 
-      <el-form-item>
-        <el-button size="large" type="primary" :icon="Search" @click="getSupplierData" round>搜索</el-button>
-        <el-button size="large" :icon="RefreshLeft" @click="resetQuery(queryForm)" round>重置</el-button>
-      </el-form-item>
+        <el-form-item>
+          <el-button size="large" type="primary" :icon="Search" @click="getSupplierData" round>搜索</el-button>
+          <el-button size="large" :icon="RefreshLeft" @click="resetQuery(queryForm)" round>重置</el-button>
+        </el-form-item>
+      </div>
     </el-form>
 
     <!-- 操作按钮 -->
@@ -625,8 +675,26 @@ onMounted(() => {
   .search-form {
     margin-bottom: 8px;
 
-    .el-form-item {
-      margin-right: 15px;
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 15px;
+      align-items: center;
+
+      .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        min-width: 200px;
+      }
+
+      .el-date-editor {
+        width: 220px !important;
+      }
+
+      .el-select {
+        width: 120px !important;
+      }
     }
   }
 
