@@ -23,11 +23,17 @@ public class GoodQueryVO {
     private Integer pageSize = 10;
 
     //查询条件
+    private Integer GoodId;         //货物id模糊查询
     private String goodName;        //货物名称模糊查询
     private Integer warehouseId;    //仓库筛选
     private Short categoryId;       //类别筛选
+
+    private Integer startNum;       //商品数量范围查询
+    private Integer endNum;
     private BigDecimal startPrice;     //价格范围查询
     private BigDecimal endPrice;
+    private String startUpdateTime;     //更新时间范围查询
+    private String endUpdateTime;
     private String startCreateTime;  //添加时间范围查询
     private String endCreateTime;
 

@@ -3,7 +3,9 @@ package org.example.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.example.entity.dto.Good;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.entity.vo.request.GoodAddVO;
 import org.example.entity.vo.request.GoodQueryVO;
+import org.example.entity.vo.request.GoodUpdateVO;
 import org.example.entity.vo.response.GoodTableVO;
 
 /**
@@ -19,5 +21,7 @@ public interface GoodService extends IService<Good> {
 
     String logicDeleteOneGood(Integer id);
 
-    String AddOneGood(Good good);
+    String AddOneGood(GoodAddVO vo);
+
+    String updateOneGood(GoodUpdateVO vo);
 }

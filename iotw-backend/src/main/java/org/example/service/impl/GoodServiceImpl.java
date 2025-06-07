@@ -5,13 +5,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.dto.Good;
+import org.example.entity.vo.request.GoodAddVO;
 import org.example.entity.vo.request.GoodQueryVO;
+import org.example.entity.vo.request.GoodUpdateVO;
 import org.example.entity.vo.response.GoodTableVO;
 import org.example.mapper.GoodMapper;
+import org.example.mapper.WarehouseMapper;
 import org.example.service.GoodService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +33,9 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
     @Resource
     private GoodMapper goodMapper;
 
+    @Resource
+    private WarehouseMapper warehouseMapper;
+
     /**
      * 货物多条件分页查询，支持排序
      *
@@ -46,10 +52,14 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
 
         // 2.构建动态查询条件
         LambdaQueryWrapper<Good> wrapper = new LambdaQueryWrapper<>();
-        wrapper.select(Good::getGoodId, Good::getGoodName, Good::getWarehouseId, Good::getCategory,
-                Good::getPrice, Good::getStandard, Good::getDescription, Good::getImage, Good::getCreateTime);
+        wrapper.select(Good::getGoodId, Good::getGoodName, Good::getWarehouseId,
+                Good::getNum, Good::getCategory, Good::getPrice, Good::getStandard,
+                Good::getDescription, Good::getImage, Good::getUpdateTime, Good::getCreateTime);
 
         // 3. 条件组合
+        if (vo.getGoodId() != null) {
+            wrapper.likeRight(Good::getGoodId, vo.getGoodId());
+        }
         if (!StringUtils.isEmpty(vo.getGoodName())) {
             wrapper.like(Good::getGoodName, vo.getGoodName());
         }
@@ -59,16 +69,42 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
         if (vo.getCategoryId() != null) {
             wrapper.eq(Good::getCategory, vo.getCategoryId());
         }
-        if (vo.getStartPrice() != null && vo.getEndPrice() != null) {
-            wrapper.between(Good::getPrice, vo.getStartPrice(), vo.getEndPrice());
+
+        if (vo.getStartNum() != null && vo.getEndNum() == null) {
+            wrapper.ge(Good::getPrice, vo.getStartNum());
+        }
+        if (vo.getStartNum() == null && vo.getEndNum() != null) {
+            wrapper.le(Good::getPrice, vo.getEndNum());
+        }
+        if (vo.getStartNum() != null && vo.getEndNum() != null) {
+            wrapper.between(Good::getPrice, vo.getStartNum(), vo.getEndNum());
+        }
+
+        if (vo.getStartPrice() != null && vo.getEndPrice() == null) {
+            wrapper.ge(Good::getPrice, vo.getStartPrice());
+        }
+        if (vo.getStartPrice() == null && vo.getEndPrice() != null) {
+            wrapper.le(Good::getPrice, vo.getEndPrice());
         }
         if (vo.getStartPrice() != null && vo.getEndPrice() != null) {
             wrapper.between(Good::getPrice, vo.getStartPrice(), vo.getEndPrice());
         }
+
+        // 更新时间
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && !StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.ge(Good::getUpdateTime, vo.getStartUpdateTime());
+        }
+        if (!StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.le(Good::getUpdateTime, vo.getEndUpdateTime());
+        }
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
+            wrapper.between(Good::getUpdateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
+        }
+
         if (StringUtils.isNotBlank(vo.getStartCreateTime()) && !StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.ge(Good::getCreateTime, vo.getStartCreateTime());
         }
-        if (!StringUtils.isNotBlank(vo.getEndCreateTime()) && StringUtils.isNotBlank(vo.getStartCreateTime())) {
+        if (!StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.le(Good::getCreateTime, vo.getEndCreateTime());
         }
         if (StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
@@ -86,11 +122,13 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
                 entity.getGoodId(),
                 entity.getGoodName(),
                 entity.getWarehouseId(),
+                entity.getNum(),
                 entity.getCategory(),
                 entity.getPrice(),
                 entity.getStandard(),
                 entity.getDescription(),
                 entity.getImage(),
+                entity.getUpdateTime(),
                 entity.getCreateTime()));
     }
 
@@ -104,10 +142,37 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
     }
 
     @Override
-    public String AddOneGood(Good good) {
-        good.setCreateTime(LocalDateTime.now());
+    public String AddOneGood(GoodAddVO vo) {
+        Good good = vo.asDTO(Good.class, target -> {
+            target.setUpdateTime(LocalDateTime.now());
+            target.setCreateTime(LocalDateTime.now());
+        });
 
-        return "";
+        if (vo.getWarehouseId() != null && warehouseMapper.selectById(vo.getWarehouseId()) == null) {
+            return "入库的仓库不存在";
+        }
+
+        return this.goodMapper.insert(good) > 0 ? null : "添加失败";
+    }
+
+    /**
+     * 更新一个货物信息
+     *
+     * @param vo 更新的信息
+     * @return 是否更新成功
+     */
+    @Override
+    public String updateOneGood(GoodUpdateVO vo) {
+        if (vo.getGoodId() == null) {
+            return "货物id不能为空";
+        }
+        if (vo.getWarehouseId() != null && warehouseMapper.selectById(vo.getWarehouseId()) == null) {
+            return "仓库不存在";
+        }
+
+        Good good = vo.asDTO(Good.class, target -> target.setUpdateTime(LocalDateTime.now()));
+
+        return goodMapper.updateById(good) > 0 ? null : "数据未变化";
     }
 
     private SFunction<Good, ?> getSortLambda(String sortField) {
@@ -116,7 +181,8 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
             case "warehouse_id" -> Good::getWarehouseId;
             case "category" -> Good::getCategory;
             case "price" -> Good::getPrice;
-            default -> Good::getGoodId;
+            case "num" -> Good::getNum;
+            default -> Good::getUpdateTime;
         };
     }
 }

@@ -44,6 +44,12 @@ public class Good implements Serializable {
     private Integer warehouseId;
 
     /**
+     * 商品数量
+     */
+    @TableField("num")
+    private Integer num;
+
+    /**
      * 货物类别
      */
     @TableField("category")
@@ -72,6 +78,9 @@ public class Good implements Serializable {
      */
     @TableField("image")
     private String image;
+
+    @TableField("update_time")
+    private LocalDateTime updateTime;
 
     /**
      * 货物产生时间

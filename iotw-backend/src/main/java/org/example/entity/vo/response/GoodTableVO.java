@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 查询货物列表返回的vo类
  *
  * @author hwshou
- * @since  2025/5/28  22:47
+ * @since 2025/5/28  22:47
  */
 @Data
 @AllArgsConstructor
@@ -20,10 +20,12 @@ public class GoodTableVO {
     private Integer GoodId;
     private String goodName;
     private Integer warehouseId;
+    private Integer num;
     private Short category;
     private BigDecimal price;
     private String standard;
     private String description;
     private String image;
+    private LocalDateTime updateTime;
     private LocalDateTime createTime;
 }
