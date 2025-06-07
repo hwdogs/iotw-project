@@ -185,10 +185,10 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
 
         // 2.2 如果记录存在则检查新信息是否存在
         if (vo.getSupplierId() != null && supplierMapper.selectById(vo.getSupplierId()) == null) {
-            return "新供货商不存在";
+            return "更新的供货商不存在";
         }
         if (vo.getGoodId() != null && goodMapper.selectById(vo.getGoodId()) == null) {
-            return "新货物不存在";
+            return "更新的货物不存在";
         }
 
         // 3. 安全转换，只处理需要特殊处理的字段
@@ -215,7 +215,7 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
             return "入库ID不能为空";
         }
 
-        // 2.查询现有账户
+        // 2.查询现有入库记录
         LambdaQueryWrapper<Supply> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Supply::getSupplyId, supplyId);
         if (this.count(queryWrapper) == 0) {
