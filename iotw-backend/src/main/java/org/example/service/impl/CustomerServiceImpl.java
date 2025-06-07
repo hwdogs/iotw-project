@@ -1,8 +1,11 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.example.entity.UserEntityContext;
@@ -51,70 +54,93 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
      */
     @Override
     public IPage<CustomerTableVO> queryCustomerTableByCondition(CustomerQueryVO vo) {
-        return UserEntityUtils.queryByConditions(
-                vo,
-                // 分页参数获取函数
-                v -> v.getPageNum().longValue(),
-                v -> v.getPageSize().longValue(),
-                //服务实例
-                this,
-                //字段选择器
-                wrapper -> wrapper.select(
-                        Customer::getCustomerId,
-                        Customer::getUsername,
-                        Customer::getEmail,
-                        Customer::getPhone,
-                        Customer::getAddress,
-                        Customer::getSex,
-                        Customer::getBirth,
-                        Customer::getRegisterTime,
-                        Customer::getUpdateTime
-                ),
-                // 条件构造器
-                (v, wrapper) -> UserEntityUtils.buildCommonConditions(
-                        v,
-                        wrapper,
-                        // 值获取函数
-                        CustomerQueryVO::getCustomerId,
-                        CustomerQueryVO::getUsername,
-                        CustomerQueryVO::getEmail,
-                        CustomerQueryVO::getPhone,
-                        CustomerQueryVO::getAddress,
-                        CustomerQueryVO::getSex,
-                        CustomerQueryVO::getStartBirth,
-                        CustomerQueryVO::getEndBirth,
-                        CustomerQueryVO::getStartRegisterTime,
-                        CustomerQueryVO::getEndRegisterTime,
-                        CustomerQueryVO::getStartUpdateTime,
-                        CustomerQueryVO::getEndUpdateTime,
-                        // 字段获取函数
-                        Customer::getCustomerId,
-                        Customer::getUsername,
-                        Customer::getEmail,
-                        Customer::getPhone,
-                        Customer::getAddress,
-                        Customer::getSex,
-                        Customer::getBirth,
-                        Customer::getRegisterTime,
-                        Customer::getUpdateTime,
-                        // 排序相关
-                        CustomerQueryVO::getSortField,
-                        CustomerQueryVO::getSortAsc,
-                        this::getSortLambda
-                ),
-                // 实体转换器
-                entity -> new CustomerTableVO(
-                        entity.getCustomerId(),
-                        entity.getUsername(),
-                        entity.getEmail(),
-                        entity.getPhone(),
-                        entity.getAddress(),
-                        entity.getSex(),
-                        entity.getBirth(),
-                        entity.getRegisterTime(),
-                        entity.getUpdateTime()
-                )
+        // 1.构建分页对象
+        Page<Customer> page = new Page<>(
+                vo.getPageNum(),
+                vo.getPageSize(),
+                true
         );
+
+        // 2.构建动态查询条件
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(Customer::getCustomerId, Customer::getUsername, Customer::getEmail, Customer::getPhone, Customer::getAddress,
+                Customer::getSex, Customer::getSex, Customer::getBirth, Customer::getRegisterTime, Customer::getUpdateTime);
+
+        // 3. 条件组合
+        if (vo.getCustomerId() != null) {
+            wrapper.likeRight(Customer::getCustomerId, vo.getCustomerId());
+        }
+        if (vo.getUsername() != null) {
+            wrapper.likeRight(Customer::getUsername, vo.getUsername());
+        }
+        if (vo.getEmail() != null) {
+            wrapper.likeRight(Customer::getEmail, vo.getEmail());
+        }
+        if (vo.getPhone() != null) {
+            wrapper.likeRight(Customer::getPhone, vo.getPhone());
+        }
+        if (vo.getAddress() != null) {
+            wrapper.like(Customer::getAddress, vo.getAddress());
+        }
+        if (vo.getSex() != null) {
+            wrapper.eq(Customer::getSex, vo.getSex());
+        }
+
+        String startBirth = vo.getStartBirth();
+        String endBirth = vo.getEndBirth();
+        if (StringUtils.isNotBlank(startBirth) && !StringUtils.isNotBlank(endBirth)) {
+            wrapper.ge(Customer::getBirth, startBirth);
+        }
+        if (!StringUtils.isNotBlank(startBirth) && StringUtils.isNotBlank(endBirth)) {
+            wrapper.le(Customer::getBirth, endBirth);
+        }
+        if (StringUtils.isNotBlank(startBirth) && StringUtils.isNotBlank(endBirth)) {
+            wrapper.between(Customer::getBirth, startBirth, endBirth);
+        }
+
+        String startRegisterTime = vo.getStartRegisterTime();
+        String endRegisterTime = vo.getEndRegisterTime();
+        if (StringUtils.isNotBlank(startRegisterTime) && !StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.ge(Customer::getRegisterTime, startRegisterTime);
+        }
+        if (!StringUtils.isNotBlank(startRegisterTime) && StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.le(Customer::getRegisterTime, endRegisterTime);
+        }
+        if (StringUtils.isNotBlank(startRegisterTime) && StringUtils.isNotBlank(endRegisterTime)) {
+            wrapper.between(Customer::getRegisterTime, startRegisterTime, endRegisterTime);
+        }
+
+        String startUpdateTime = vo.getStartUpdateTime();
+        String endUpdateTime = vo.getEndUpdateTime();
+        if (StringUtils.isNotBlank(startUpdateTime) && !StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.ge(Customer::getUpdateTime, startUpdateTime);
+        }
+        if (!StringUtils.isNotBlank(startUpdateTime) && StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.le(Customer::getUpdateTime, endUpdateTime);
+        }
+        if (StringUtils.isNotBlank(startUpdateTime) && StringUtils.isNotBlank(endUpdateTime)) {
+            wrapper.between(Customer::getUpdateTime, startUpdateTime, endUpdateTime);
+        }
+
+        // 4.动态排序
+        wrapper.orderBy(true, vo.getSortAsc(),
+                getSortLambda(vo.getSortField()));
+
+        // 5.转化为VO分页
+        Page<Customer> customerPage = this.page(page, wrapper);
+
+        return customerPage.convert(entity -> new CustomerTableVO(
+                entity.getCustomerId(),
+                entity.getUsername(),
+                entity.getEmail(),
+                entity.getPhone(),
+                entity.getAddress(),
+                entity.getSex(),
+                entity.getBirth(),
+                entity.getRegisterTime(),
+                entity.getUpdateTime()
+        ));
+
     }
 
     /**
