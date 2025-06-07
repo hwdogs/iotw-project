@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
-import java.time.LocalDateTime;
-
 /**
  * 请求出库列表vo类
  *
@@ -27,10 +25,10 @@ public class SellQueryVO {
 
     private Integer startSellNumber;    //入库数量范围查询
     private Integer endSellNumber;
-    private LocalDateTime startCreateTime;  //入库时间范围查询
-    private LocalDateTime endCreateTime;
-    private LocalDateTime startUpdateTime;  //更新时间范围查询
-    private LocalDateTime endUpdateTime;
+    private String startCreateTime;  //入库时间范围查询
+    private String endCreateTime;
+    private String startUpdateTime;  //更新时间范围查询
+    private String endUpdateTime;
 
     // 排序字段
     private String sortField = "create_time";

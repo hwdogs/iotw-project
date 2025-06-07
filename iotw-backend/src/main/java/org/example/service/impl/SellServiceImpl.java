@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -78,23 +79,23 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
             wrapper.between(Sell::getSellNumber, vo.getStartSellNumber(), vo.getEndSellNumber());
         }
         // 创建时间
-        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() == null) {
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && !StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.ge(Sell::getCreateTime, vo.getStartCreateTime());
         }
-        if (vo.getStartCreateTime() == null && vo.getEndCreateTime() != null) {
+        if (!StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.le(Sell::getCreateTime, vo.getEndCreateTime());
         }
-        if (vo.getStartCreateTime() != null && vo.getEndCreateTime() != null) {
+        if (StringUtils.isNotBlank(vo.getStartCreateTime()) && StringUtils.isNotBlank(vo.getEndCreateTime())) {
             wrapper.between(Sell::getCreateTime, vo.getStartCreateTime(), vo.getEndCreateTime());
         }
         // 更新时间
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() == null) {
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && !StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.ge(Sell::getUpdateTime, vo.getStartUpdateTime());
         }
-        if (vo.getStartUpdateTime() == null && vo.getEndUpdateTime() != null) {
+        if (!StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.le(Sell::getUpdateTime, vo.getEndUpdateTime());
         }
-        if (vo.getStartUpdateTime() != null && vo.getEndUpdateTime() != null) {
+        if (StringUtils.isNotBlank(vo.getStartUpdateTime()) && StringUtils.isNotBlank(vo.getEndUpdateTime())) {
             wrapper.between(Sell::getCreateTime, vo.getStartUpdateTime(), vo.getEndUpdateTime());
         }
 
