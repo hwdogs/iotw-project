@@ -21,14 +21,13 @@ import org.example.utils.UserEntityUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -38,12 +37,12 @@ import java.util.stream.Collectors;
  * 账户信息处理相关服务
  *
  * @author hwshou
- * @date 2025/5/19  22:11
+ * @date 2025/5/19 22:11
  */
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
-    //验证邮件发送冷却时间限制，秒为单位
+    // 验证邮件发送冷却时间限制，秒为单位
     @Value("${spring.web.verify.mail-limit}")
     int verifyLimit;
 
@@ -71,7 +70,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //传进来的username可能是username也可能是email
+        // 传进来的username可能是username也可能是email
         Account account = this.findAccountByNameOrEmail(username);
         if (account == null) {
             throw new UsernameNotFoundException("用户名或密码错误");
@@ -79,7 +78,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         return User
                 .withUsername(username)
                 .password(account.getPassword())
-                .roles(String.valueOf(account.getRole())) //数据库是Integer SpringSecurity是String
+                .roles(String.valueOf(account.getRole())) // 数据库是Integer SpringSecurity是String
                 .build();
     }
 
@@ -140,7 +139,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     @Override
     public String registerEmailVerifyCode(String type, String email, String ip) {
-        synchronized (ip.intern()) {    //防止同个ip同时多次访问
+        synchronized (ip.intern()) { // 防止同个ip同时多次访问
             if (!this.verifyLimit(ip)) {
                 return "请求频繁, 请稍后再试";
             }
@@ -188,8 +187,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 account -> {
                     account.setPassword(passwordEncoder.encode(vo.getPassword()));
                     account.setRole(Const.RULE_USER);
-                }
-        );
+                });
     }
 
     /**
@@ -200,23 +198,21 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     @Override
     public IPage<AccountTableOV> queryByConditions(AccountQueryVO vo) {
-        //1.构建分页对象
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<Account> page =
-                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
-                        vo.getPageNum(),
-                        vo.getPageSize(),
-                        true
-                );
-//        //设置优化参数
-//        page.setOptimizeCountSql(false);
+        // 1.构建分页对象
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<Account> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
+                vo.getPageNum(),
+                vo.getPageSize(),
+                true);
+        // //设置优化参数
+        // page.setOptimizeCountSql(false);
 
-        //2.构建动态查询条件
+        // 2.构建动态查询条件
         LambdaQueryWrapper<Account> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(Account::getId, Account::getUsername, Account::getRole, Account::getBirth,
-                        Account::getSex, Account::getEmail, Account::getAddress)
+                Account::getSex, Account::getEmail, Account::getAddress)
                 .eq(Account::getDeleted, Const.IS_NOT_DELETED);
 
-        //3. 条件组合
+        // 3. 条件组合
         if (vo.getId() != null) {
             wrapper.likeRight(Account::getId, vo.getId());
         }
@@ -244,24 +240,22 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             wrapper.like(Account::getEmail, vo.getEmail());
         }
 
-        //4.动态排序
+        // 4.动态排序
         wrapper.orderBy(true, vo.getSortAsc(),
                 getSortLambda(vo.getSortField()));
 
-        //5.执行分页查询
+        // 5.执行分页查询
         IPage<Account> entityPage = accountMapper.selectPage(page, wrapper);
 
-        //6.转化为VO分页
-        return entityPage.convert(entity ->
-                new AccountTableOV(
-                        entity.getId(),
-                        entity.getUsername(),
-                        entity.getRole(),
-                        entity.getBirth(),
-                        entity.getSex(),
-                        entity.getEmail(),
-                        entity.getAddress()
-                ));
+        // 6.转化为VO分页
+        return entityPage.convert(entity -> new AccountTableOV(
+                entity.getId(),
+                entity.getUsername(),
+                entity.getRole(),
+                entity.getBirth(),
+                entity.getSex(),
+                entity.getEmail(),
+                entity.getAddress()));
     }
 
     /**
@@ -309,8 +303,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                     }
                 },
                 AccountUpdateVO::getEmail,
-                null
-        );
+                null);
     }
 
     @Override
@@ -337,8 +330,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 },
                 stringRedisTemplate,
                 passwordEncoder,
-                account -> account.setPassword(passwordEncoder.encode(vo.getPassword()))
-        );
+                account -> account.setPassword(passwordEncoder.encode(vo.getPassword())));
     }
 
     /**
@@ -362,6 +354,28 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                     return vo;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AccountTableOV getCurrentAccountInfo() {
+        // 获取当前登录用户的用户名
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 查询用户信息
+        Account account = this.findAccountByNameOrEmail(username);
+        if (account == null) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
+
+        // 转换为VO对象
+        return new AccountTableOV(
+                account.getId(),
+                account.getUsername(),
+                account.getRole(),
+                account.getBirth(),
+                account.getSex(),
+                account.getEmail(),
+                account.getAddress());
     }
 
     private SFunction<Account, ?> getSortLambda(String field) {

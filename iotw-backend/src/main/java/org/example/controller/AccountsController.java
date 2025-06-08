@@ -104,4 +104,14 @@ public class AccountsController {
     public RestBean<List<AccountIdUsernameVO>> getAccountIdsAndUsernames(){
         return RestBean.success(accountService.getAllAccountIdsAndUsernames());
     }
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 当前用户信息
+     */
+    @GetMapping("/info")
+    public RestBean<AccountTableOV> getCurrentAccountInfo() {
+        return RestBean.success(accountService.getCurrentAccountInfo());
+    }
 }

@@ -34,4 +34,6 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     String addOneAccount(AccountAddVO vo);
 
     List<AccountIdUsernameVO> getAllAccountIdsAndUsernames();
+
+    AccountTableOV getCurrentAccountInfo();
 }
