@@ -7,10 +7,8 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import org.example.entity.dto.Customer;
 import org.example.entity.dto.Good;
 import org.example.entity.dto.Sell;
-import org.example.entity.dto.Supply;
 import org.example.entity.vo.request.SellAddVO;
 import org.example.entity.vo.request.SellQueryVO;
 import org.example.entity.vo.request.SellUpdateVO;
@@ -21,6 +19,7 @@ import org.example.mapper.SellMapper;
 import org.example.mapper.SupplyMapper;
 import org.example.service.SellService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -128,6 +127,7 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
      * @return 是否入库成功
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String addOneSell(SellAddVO vo) {
         // 1.参数校验
         if (vo.getCustomerId() == null) {
@@ -152,27 +152,20 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
             return "货物不存在";
         }
 
-        // 3.更新good表
-        if (vo.getSellNumber() != null) {
-            Integer allTheGoodNum = sellGood.getNum();
-            Integer sellTheGoodNum = vo.getSellNumber();
-            //如果要出库的数量大于库存数量，则返回
-            if (sellTheGoodNum > allTheGoodNum) {
-                return "当前商品数量小于" + sellTheGoodNum;
-            }
-            //否则更新对应good库存数量
-            sellGood.setNum(allTheGoodNum - sellTheGoodNum);
-            sellGood.setUpdateTime(LocalDateTime.now());
-            goodMapper.updateById(sellGood);
+        try {
+            // 1. 扣减库存
+            adjustInventory(vo.getGoodId(), -vo.getSellNumber());
+
+            // 2. 创建记录
+            Sell sell = vo.asDTO(Sell.class, target -> {
+                target.setCreateTime(LocalDateTime.now());
+                target.setUpdateTime(LocalDateTime.now());
+            });
+
+            return this.save(sell) ? null : "添加失败";
+        } catch (Exception e) {
+            return e.getMessage();
         }
-
-        // 4.安全转换
-        Sell sell = vo.asDTO(Sell.class, target -> {
-            target.setCreateTime(LocalDateTime.now());
-            target.setUpdateTime(LocalDateTime.now());
-        });
-
-        return this.save(sell) ? null : "添加失败";
     }
 
     /**
@@ -182,44 +175,66 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
      * @return 是否更新成功
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String updateOneSell(SellUpdateVO vo) {
         // 1.参数校验
         if (vo.getSellId() == null) {
             return "出库ID不能为空";
         }
-        if (vo.getCustomerId() == null && vo.getGoodId() == null) {
-            return "顾客和货物ID不能同时为空";
+        if (vo.getCustomerId() == null) {
+            return "顾客ID不能为空";
+        }
+        if (vo.getGoodId() == null) {
+            return "货物ID不能为空";
         }
 
-        // 2.1 查询现有出库记录
-        LambdaQueryWrapper<Sell> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Sell::getSellId, vo.getSellId());
-        if (this.count(wrapper) == 0) {
-            return "更新的出库信息不存在";
-        }
 
-        // 2.2 如果记录存在则检查要更新的信息是否存在，包括被逻辑删除的
-        LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
-        customerWrapper.eq(Customer::getCustomerId, vo.getCustomerId())
-                .last("OR deleted = 1");
-        if (vo.getCustomerId() != null && customerMapper.selectOne(customerWrapper) == null) {
-            return "更新的顾客不存在";
-        }
+        // 2. 获取现有出库记录（旧数据）
+        Sell oldSell = this.getById(vo.getSellId());
+        if (oldSell == null) return "更新的出库信息不存在";
 
-        LambdaQueryWrapper<Good> goodWrapper = new LambdaQueryWrapper<>();
-        goodWrapper.eq(Good::getGoodId, vo.getGoodId())
-                .last("OR deleted = 1");
-        ;
-        if (vo.getGoodId() != null && goodMapper.selectOne(goodWrapper) == null) {
+        // 3. 确定新值（处理部分更新）
+        Integer newGoodId = vo.getGoodId() != null ? vo.getGoodId() : oldSell.getGoodId();
+        Integer newSellNumber = vo.getSellNumber() != null ? vo.getSellNumber() : oldSell.getSellNumber();
+
+        // 4. 外键校验（确保新商品存在）
+        Good good = goodMapper.selectById(newGoodId);
+        if (vo.getGoodId() != null && good == null) {
             return "更新的货物不存在";
         }
+        if (good.getNum() == null || good.getNum() == 0) {
+            return "货物库存不足或还未审批通过";
+        }
 
-        // 3. 安全转换，只处理需要特殊处理的字段
-        Sell sell = vo.asDTO(Sell.class, target -> {
-            target.setUpdateTime(LocalDateTime.now());
-        });
+        try {
+            // 5. 库存调整逻辑
+            if (!oldSell.getGoodId().equals(newGoodId)) {
+                // 情况1：商品ID变化
+                // 恢复旧商品库存
+                adjustInventory(oldSell.getGoodId(), oldSell.getSellNumber());
+                // 扣减新商品库存
+                adjustInventory(newGoodId, -newSellNumber);
+            } else {
+                // 情况2：商品ID不变
+                // 计算净变化量 = 旧数量 - 新数量（相当于先恢复旧出库再新出库）
+                int netChange = oldSell.getSellNumber() - newSellNumber;
+                if (netChange != 0) {
+                    adjustInventory(oldSell.getGoodId(), netChange);
+                }
+            }
 
-        return this.updateById(sell) ? null : "数据未变化";
+            // 6. 更新出库记录
+            Sell sell = new Sell();
+            sell.setSellId(vo.getSellId());
+            sell.setCustomerId(vo.getCustomerId() != null ? vo.getCustomerId() : oldSell.getCustomerId());
+            sell.setGoodId(newGoodId);
+            sell.setSellNumber(newSellNumber);
+            sell.setUpdateTime(LocalDateTime.now());
+
+            return this.updateById(sell) ? null : "数据未变化";
+        } catch (Exception e) {
+            return e.getMessage(); // 自动回滚事务
+        }
     }
 
     /**
@@ -244,6 +259,36 @@ public class SellServiceImpl extends ServiceImpl<SellMapper, Sell> implements Se
 
         // 3.安全逻辑删除
         return this.removeById(sellId) ? null : "删除失败";
+    }
+
+    /**
+     * 安全调整库存（带检查）
+     *
+     * @param goodId         商品ID
+     * @param quantityChange 变化量（正数表示增加，负数表示减少）
+     */
+    private void adjustInventory(Integer goodId, int quantityChange) {
+        Good good = goodMapper.selectById(goodId);
+        if (good == null) throw new RuntimeException("商品不存在: " + goodId);
+
+        // 处理库存数量为null的情况
+        Integer currentNum = good.getNum();
+        if (currentNum == null) {
+            // 库存未初始化，视为0
+            currentNum = 0;
+        }
+
+        int newQuantity = currentNum + quantityChange;
+
+        if (newQuantity < 0) {
+            throw new RuntimeException("库存不足: 商品ID " + goodId +
+                    " 当前库存 " + good.getNum() +
+                    " 需要扣减 " + (-quantityChange));
+        }
+
+        good.setNum(newQuantity);
+        good.setUpdateTime(LocalDateTime.now());
+        goodMapper.updateById(good);
     }
 
     private SFunction<Sell, ?> getSortLambda(String sortField) {
