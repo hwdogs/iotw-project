@@ -46,15 +46,15 @@ function storeAccessToken(token, remember, expire) {
 }
 
 function internalPost(url, data, header, success, failure, error = defaultError) {
-    // 如果是FormData（文件上传），不设置Content-Type
-    const headers = data instanceof FormData ?
+    // 如果是 FormData 或 URLSearchParams，不设置 Content-Type
+    const headers = (data instanceof FormData || data instanceof URLSearchParams) ?
         { ...header } :
         { ...header, 'Content-Type': 'application/json' }
 
     axios.post(url, data, {
         headers: headers,
-        // 如果是文件上传，需要设置正确的请求配置
-        ...(data instanceof FormData ? {
+        // 如果是 FormData 或 URLSearchParams，需要设置正确的请求配置
+        ...((data instanceof FormData || data instanceof URLSearchParams) ? {
             transformRequest: [(data) => data]
         } : {})
     })
@@ -95,10 +95,11 @@ function post(url, data, success, failure = defaultError) {
 }
 
 function login(username, password, remember, success, failure = defaultFailure) {
-    internalPost('/api/auth/login', {
-        username: username,
-        password: password,
-    }, {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    internalPost('/api/auth/login', formData, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data) => {
         storeAccessToken(data.token, remember, data.expire)
