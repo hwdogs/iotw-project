@@ -15,5 +15,6 @@ import org.example.entity.dto.Supply;
 @Mapper
 public interface SupplyMapper extends BaseMapper<Supply> {
 
+    Integer sumValidSupplyByGoodId(Integer goodId, Short status);
 }
 

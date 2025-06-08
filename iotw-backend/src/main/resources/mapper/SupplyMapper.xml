@@ -19,4 +19,12 @@
         supply_id, supplier_id, good_id, supply_number, create_time, update_time, status, deleted
     </sql>
 
+    <select id="sumValidSupplyByGoodId" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(supply_number), 0)
+        FROM t_supply
+        WHERE good_id = #{goodId}
+          AND status = #{status}
+          AND deleted = 0
+    </select>
+
 </mapper>
