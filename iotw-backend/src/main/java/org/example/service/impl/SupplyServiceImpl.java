@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.example.entity.dto.Good;
 import org.example.entity.dto.Supply;
 import org.example.entity.vo.request.SupplyAddVO;
 import org.example.entity.vo.request.SupplyQueryVO;
@@ -20,6 +21,9 @@ import org.example.utils.Const;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * <p>
@@ -31,6 +35,9 @@ import java.time.LocalDateTime;
  */
 @Service
 public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> implements SupplyService {
+
+    @Resource
+    private SupplyMapper supplyMapper;
 
     @Resource
     private SupplierMapper supplierMapper;
@@ -173,34 +180,129 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
         if (vo.getSupplyId() == null) {
             return "入库ID不能为空";
         }
-        if (vo.getSupplierId() == null && vo.getGoodId() == null) {
-            return "供货商和货物ID不能同时为空";
+        if (vo.getSupplierId() == null) {
+            return "供货商ID不能为空";
+        }
+        if (vo.getGoodId() == null) {
+            return "货物ID不能为空";
+        }
+        if (vo.getStatus() == null) {
+            return "货物状态不能为空!!!";
         }
 
-        // 2.1 查询现有入库记录
-        LambdaQueryWrapper<Supply> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Supply::getSupplyId, vo.getSupplyId());
-        if (this.count(queryWrapper) == 0) {
+        // 2 获取原始入库记录
+        Supply oldSupply = supplyMapper.selectById(vo.getSupplyId());
+        if (oldSupply == null) {
             return "更新的入库记录不存在";
         }
 
-        // 2.2 如果记录存在则检查新信息是否存在
-        if (vo.getSupplierId() != null && supplierMapper.selectById(vo.getSupplierId()) == null) {
+        // 3. 检查供应商和货物是否存在
+        if (!vo.getSupplierId().equals(oldSupply.getSupplierId()) &&
+                supplierMapper.selectById(vo.getSupplierId()) == null) {
             return "更新的供货商不存在";
         }
-        if (vo.getGoodId() != null && goodMapper.selectById(vo.getGoodId()) == null) {
-            return "更新的货物不存在";
+
+        Good newGood = goodMapper.selectById(vo.getGoodId());
+        if (newGood == null) return "更新的货物不存在";
+
+        // 4. 处理 GoodId 变更
+        Good oldGood = null;
+        if (!vo.getGoodId().equals(oldSupply.getGoodId())) {
+            oldGood = goodMapper.selectById(oldSupply.getGoodId());
+            if (oldGood == null) return "原始货物不存在";
         }
 
-        // 3. 安全转换，只处理需要特殊处理的字段
-        Supply supply = vo.asDTO(Supply.class, target -> {
-            target.setUpdateTime(LocalDateTime.now());
-            if (vo.getStatus() != null) {
-                target.setStatus(vo.getStatus());
-            }
-        });
+        // 记录受影响商品ID集合
+        Set<Integer> affectedGoodIds = new HashSet<>();
+        affectedGoodIds.add(oldSupply.getGoodId()); // 原商品ID
+        affectedGoodIds.add(vo.getGoodId());        // 新商品ID
 
-        return this.updateById(supply) ? null : "数据未变化";
+        // 更新t_supply记录
+        Supply newSupply = vo.asDTO(Supply.class, target ->
+                target.setUpdateTime(LocalDateTime.now())
+        );
+        if (!this.updateById(newSupply)) return "数据未变化";
+
+        // 重算所有受影响商品的库存
+        for (Integer goodId : affectedGoodIds) {
+            recalculateGoodInventory(goodId);
+        }
+        return null;
+        
+//        // 2.3 判断status变化情况
+//        Good good = goodMapper.selectById(vo.getGoodId());
+//        Short oldStatus = supplyMapper.selectById(vo.getSupplyId()).getStatus();
+//        Short newStata = vo.getStatus();
+//
+//        /* 之前为0，现在为0，不变 */
+//        /* 之前为0，现在为1，说明status本身不为1然后要设置为1，说明管理员把待审核的审核通过了，则级联更新good表的num */
+//        if (Objects.equals(oldStatus, Const.NOT_APPROVED) && Objects.equals(newStata, Const.APPROVED_SUCCESSFULLY)) {
+//            Integer oldNum = good.getNum();                    //原先的旧数量，若是第一次入库则为0
+//            good.setNum(oldNum + vo.getSupplyNumber());        //原先的数量+要入库的数量
+//            good.setUpdateTime(LocalDateTime.now());
+//            goodMapper.updateById(good);
+//        }
+//        /* 之前为0，现在为-1，不变 */
+//        /* 之前为1，现在也为1 ，如果state前后都为1, 说明入库数量之前可能有错误，则先good num先删去supply的旧数据，在加上新数据 */
+//        if (Objects.equals(oldStatus, Const.APPROVED_SUCCESSFULLY) && Objects.equals(newStata, Const.APPROVED_SUCCESSFULLY)) {
+//            Integer oldGoodNum = goodMapper.selectById(vo.getGoodId()).getNum();
+//            Integer oldSupplyNum = supplyMapper.selectById(vo.getSupplyId()).getSupplyNumber();
+//            Integer newSupplyNum = vo.getSupplyNumber();
+//
+//            int finalNum = oldGoodNum - oldSupplyNum + newSupplyNum;
+//            if (finalNum < 0) return "货物已售出，不能更改";
+//            good.setNum(finalNum);              //原先的数量-本入库单之前入库的数据+现在要入库的数据
+//            good.setUpdateTime(LocalDateTime.now());
+//            goodMapper.updateById(good);
+//        }
+//        /* 之前为1，现在为0，说明管理员把审批通过的的变为未通过的，则good num减去这个入库单里面的supply num */
+//        /* 之前为1，现在为-1，说明管理员把审批通过的变成审批不通过的，则good num减去这个入库单里面的supply num */
+//        if (Objects.equals(oldStatus, Const.APPROVED_SUCCESSFULLY) && Objects.equals(newStata, Const.NOT_APPROVED)
+//                || Objects.equals(oldStatus, Const.APPROVED_SUCCESSFULLY) && Objects.equals(newStata, Const.APPROVED_UNSUCCESSFULLY)) {
+//            Integer oldGoodNum = goodMapper.selectById(vo.getGoodId()).getNum();
+//            Integer alreadySupplyNum = vo.getSupplyNumber();
+//
+//            int finalNum = oldGoodNum - alreadySupplyNum;
+//            if (finalNum < 0) return "货物已售出，不能更改";
+//            good.setNum(finalNum);
+//            good.setUpdateTime(LocalDateTime.now());
+//            goodMapper.updateById(good);
+//        }
+//        /* 之前为-1，现在为1，说明之前审批不通过的被审批通过了，则good num加上审批通过的入库单的supply num */
+//        if (Objects.equals(oldStatus, Const.APPROVED_UNSUCCESSFULLY) && Objects.equals(newStata, Const.APPROVED_SUCCESSFULLY)) {
+//            Integer oldGoodNum = goodMapper.selectById(vo.getGoodId()).getNum();
+//            Integer newSupplyNum = vo.getSupplyNumber();
+//
+//            int finalNum = oldGoodNum + newSupplyNum;
+//            good.setNum(finalNum);
+//            good.setUpdateTime(LocalDateTime.now());
+//            goodMapper.updateById(good);
+//        }
+//
+//        /* 之前为-1，现在为0，不变 */
+//        /* 之前为-1，现在为-1，不变 */
+//
+//        // 3. 安全转换，只处理需要特殊处理的字段
+//        Supply newsupply = vo.asDTO(Supply.class, target -> {
+//            target.setUpdateTime(LocalDateTime.now());
+//            if (vo.getStatus() != null) {
+//                target.setStatus(vo.getStatus());
+//            }
+//        });
+//
+//        return this.updateById(newsupply) ? null : "数据未变化";
+    }
+
+    private void recalculateGoodInventory(Integer goodId) {
+        // 计算有效入库总量 (status=1且未删除)
+        Integer totalNum = supplyMapper.sumValidSupplyByGoodId(goodId, Const.APPROVED_SUCCESSFULLY);
+        if (totalNum == null) totalNum = 0;
+
+        // 更新商品库存
+        Good good = goodMapper.selectById(goodId);
+        good.setNum(totalNum);
+        good.setUpdateTime(LocalDateTime.now());
+        goodMapper.updateById(good);
     }
 
     /**
@@ -226,6 +328,7 @@ public class SupplyServiceImpl extends ServiceImpl<SupplyMapper, Supply> impleme
         // 3.安全逻辑删除
         return this.removeById(supplyId) ? null : "删除失败";
     }
+
 
     private SFunction<Supply, ?> getSortLambda(String sortField) {
         return switch (sortField) {
