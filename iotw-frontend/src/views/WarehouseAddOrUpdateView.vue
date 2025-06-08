@@ -38,6 +38,10 @@ const warehouseForm = reactive({
 const accountList = ref<Account[]>([])
 const loading = ref(false)
 
+// 远程搜索相关
+const searchLoading = ref(false)
+const searchTimeout = ref<number | null>(null)
+
 // 表单验证规则
 const rules = {
   warehouseName: [
@@ -54,19 +58,35 @@ const getCurrentStepFields = () => {
   return ['warehouseName', 'area']
 }
 
-// 获取账户列表
-const getAccountList = () => {
-  loading.value = true
-  try {
-    get('/api/account/ids-and-usernames', (res) => {
-    accountList.value = res
-  }, (message) => {
-    ElMessage.error('获取账户列表失败：' + message)
-    })
-  } catch (error) {
-    ElMessage.error('获取账户列表失败：' + error)
-  } finally {
-    loading.value = false
+// 远程搜索方法
+const remoteSearch = (query: string) => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
+  }
+  
+  if (query) {
+    searchLoading.value = true
+    searchTimeout.value = window.setTimeout(() => {
+      post('/api/account/query', {
+        pageNum: 1,
+        pageSize: 10,
+        username: query,
+        sortField: 'id',
+        sortAsc: true
+      }, (res) => {
+        accountList.value = res.records.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          role: item.role
+        }))
+        searchLoading.value = false
+      }, (message) => {
+        ElMessage.error('搜索账户失败：' + message)
+        searchLoading.value = false
+      })
+    }, 300)
+  } else {
+    accountList.value = []
   }
 }
 
@@ -145,7 +165,6 @@ const goBack = () => {
 }
 
 onMounted(() => {
-  getAccountList()
   if (route.query.type === 'edit' && route.query.id) {
     getWarehouseInfo(Number(route.query.id))
   }
@@ -211,7 +230,10 @@ onMounted(() => {
               v-model="warehouseForm.accountIds"
               multiple
               filterable
-              placeholder="请选择仓库管理者"
+              remote
+              :remote-method="remoteSearch"
+              :loading="searchLoading"
+              placeholder="请输入用户名搜索并选择仓库管理者"
               style="width: 100%"
           >
             <el-option
@@ -220,10 +242,12 @@ onMounted(() => {
                 :label="account.name"
                 :value="account.id"
             >
-              <span>{{ account.name }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">
-                ID: {{ account.id }}
-              </span>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>{{ account.name }}</span>
+                <span style="color: #8492a6; font-size: 13px">
+                  ID: {{ account.id }}
+                </span>
+              </div>
             </el-option>
           </el-select>
         </el-form-item>

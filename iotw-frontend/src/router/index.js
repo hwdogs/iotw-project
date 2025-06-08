@@ -99,11 +99,6 @@ const router = createRouter({
                     component: () => import('@/views/CategoryView.vue')
                 },
                 {
-                    path: 'categoryManage',
-                    name: 'categoryManage',
-                    component: () => import('@/views/CategoryManageView.vue')
-                },
-                {
                     path: 'roles/:roleId/alloc-menus',
                     name: 'alloc-menus',
                     component: () => import('@/views/roles/AllocMenus.vue'),

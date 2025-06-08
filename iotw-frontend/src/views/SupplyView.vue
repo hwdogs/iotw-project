@@ -145,14 +145,16 @@ const form = ref({
   supplyId: undefined,
   supplierId: undefined,
   goodId: undefined,
-  supplyNumber: undefined
+  supplyNumber: undefined,
+  status: undefined
 })
 
 // 表单验证规则
 const rules = ref<FormRules>({
   supplierId: [{ required: true, message: '请选择供应商', trigger: 'change' }],
   goodId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-  supplyNumber: [{ required: true, message: '请输入入库数量', trigger: 'blur' }]
+  supplyNumber: [{ required: true, message: '请输入入库数量', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
 })
 
 // 打开添加对话框
@@ -163,7 +165,8 @@ const handleAdd = () => {
     supplyId: undefined,
     supplierId: undefined,
     goodId: undefined,
-    supplyNumber: undefined
+    supplyNumber: undefined,
+    status: 0  // 默认状态为待审批
   }
   dialogVisible.value = true
 }
@@ -225,7 +228,8 @@ const handleClose = () => {
     supplyId: undefined,
     supplierId: undefined,
     goodId: undefined,
-    supplyNumber: undefined
+    supplyNumber: undefined,
+    status: undefined
   }
 }
 
@@ -466,6 +470,16 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="入库数量" prop="supplyNumber">
           <el-input-number v-model="form.supplyNumber" :min="1" placeholder="请输入入库数量" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态" style="width: 100%">
+            <el-option
+              v-for="item in STATUS_OPTIONS"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
 

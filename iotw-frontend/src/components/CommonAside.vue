@@ -147,13 +147,6 @@ const list = ref<MenuItem[]>([
         label: '类别列表',
         icon: markRaw(Files),
         url: 'Category',
-      },
-      {
-        path: '/index/categoryManage',
-        name: 'categoryManage',
-        label: '类别管理',
-        icon: markRaw(Management),
-        url: 'CategoryManage',
       }
     ]
   }
